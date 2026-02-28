@@ -1,0 +1,13 @@
+{
+  "name": "axisq",
+  "version": "1.0.0",
+  "description": "Axisq - Influencer Outreach Platform",
+  "scripts": {
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "start": "concurrently \"cd backend && npm start\" \"cd frontend && npm run preview\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
