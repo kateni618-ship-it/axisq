@@ -585,9 +585,624 @@
       0%, 100% { box-shadow: 0 0 0 0 rgba(88,166,255,.4); }
       50%       { box-shadow: 0 0 0 8px rgba(88,166,255,0); }
     }
+
+    /* ============================================================
+       App Shell & Sidebar
+    ============================================================ */
+    .app-shell { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    .sidebar-header {
+      padding: 18px 16px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-logo {
+      font-size: 1rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--client), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -.02em;
+    }
+    .sidebar-hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      line-height: 1;
+      margin-left: auto;
+    }
+    .sidebar-hamburger:hover { background: var(--bg3); color: var(--text); }
+
+    nav { padding: 12px 0; flex: 1; }
+    .nav-group { margin-bottom: 8px; }
+    .nav-group-label {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 6px 16px;
+    }
+    .nav-items { list-style: none; }
+    .nav-items li { position: relative; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: var(--font);
+      font-size: .88rem;
+      font-weight: 500;
+      padding: 8px 16px;
+      cursor: pointer;
+      text-align: left;
+      transition: background .15s, color .15s;
+    }
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+    .nav-item.active { background: rgba(88,166,255,.1); color: var(--client); font-weight: 600; }
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 22px;
+      background: var(--client);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .main-content { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .page { flex: 1; }
+    .page.hidden { display: none; }
+
+    .mobile-topbar {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      height: 52px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+    .mobile-menu-btn {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      line-height: 1;
+    }
+    .mobile-menu-btn:hover { background: var(--bg3); }
+    .mobile-title { font-size: .95rem; font-weight: 700; color: var(--text); }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 99;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+        z-index: 100;
+        height: 100%;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay { display: block; opacity: 0; pointer-events: none; transition: opacity .25s; }
+      .sidebar-overlay.visible { opacity: 1; pointer-events: auto; }
+      .mobile-topbar { display: flex; }
+      .sidebar-hamburger { display: flex; }
+    }
+
+    /* ============================================================
+       Requirements Management Page
+    ============================================================ */
+    #page-req { background: var(--bg); }
+    #rm-root {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    .rm-page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .rm-page-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 4px; }
+    .rm-page-sub   { color: var(--muted); font-size: .88rem; }
+    .rm-header-actions { display: flex; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
+
+    .rm-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .rm-breadcrumb-link {
+      color: var(--client);
+      background: none;
+      border: none;
+      font-family: var(--font);
+      font-size: .82rem;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .rm-breadcrumb-link:hover { opacity: .75; }
+    .rm-breadcrumb-sep { color: var(--border); }
+
+    .rm-empty {
+      text-align: center;
+      padding: 72px 24px;
+      color: var(--muted);
+    }
+    .rm-empty-icon  { font-size: 3rem; margin-bottom: 16px; display: block; }
+    .rm-empty-title { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .rm-empty-desc  { font-size: .88rem; margin-bottom: 24px; }
+
+    /* Project cards */
+    .rm-projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+      gap: 16px;
+    }
+    .rm-project-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s, transform .15s;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .rm-project-card:hover { border-color: var(--client); box-shadow: 0 8px 30px var(--shadow); transform: translateY(-2px); }
+    .rm-project-card-name { font-size: 1rem; font-weight: 700; line-height: 1.3; }
+    .rm-project-card-desc { font-size: .84rem; color: var(--muted); line-height: 1.55; flex: 1; }
+    .rm-project-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .rm-meta-tag {
+      font-size: .7rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 99px;
+      background: var(--bg3);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .rm-project-card-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+    .rm-icon-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--font);
+      font-size: .78rem;
+      padding: 5px 11px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .rm-icon-btn:hover { background: var(--bg); color: var(--text); }
+    .rm-icon-btn.danger:hover { background: rgba(247,129,102,.12); color: var(--db); border-color: var(--db); }
+
+    .rm-project-new {
+      background: transparent;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 140px;
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 600;
+      font-family: var(--font);
+      text-align: center;
+    }
+    .rm-project-new:hover { border-color: var(--client); background: rgba(88,166,255,.04); color: var(--client); }
+    .rm-project-new-icon { font-size: 1.8rem; }
+
+    /* Project info bar */
+    .rm-project-info-bar {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .rm-project-info-desc  { font-size: .88rem; color: var(--muted); line-height: 1.55; }
+    .rm-project-info-stack {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .78rem;
+      color: var(--muted);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      align-self: flex-start;
+    }
+
+    /* Module list */
+    .rm-module-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .rm-module-row {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: border-color .2s, background .15s;
+    }
+    .rm-module-row:hover { border-color: var(--server); background: rgba(63,185,80,.04); }
+    .rm-module-info { flex: 1; min-width: 0; }
+    .rm-module-row-name { font-size: .95rem; font-weight: 700; margin-bottom: 3px; }
+    .rm-module-row-desc { font-size: .82rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rm-module-arrow { color: var(--muted); font-size: 1rem; flex-shrink: 0; }
+
+    .rm-section-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .rm-section-title { font-size: 1rem; font-weight: 700; }
+    .rm-section-sub   { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+
+    /* Inline add-module form */
+    .rm-add-module-form {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .rm-add-module-form.hidden { display: none; }
+
+    /* Module editor tabs */
+    .rm-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .rm-tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      color: var(--muted);
+      font-family: var(--font);
+      font-size: .88rem;
+      font-weight: 600;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+    }
+    .rm-tab-btn:hover { color: var(--text); }
+    .rm-tab-btn.active { color: var(--client); border-bottom-color: var(--client); }
+
+    /* Entity cards */
+    .rm-entity-list { display: flex; flex-direction: column; gap: 16px; }
+    .rm-entity-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .rm-entity-header {
+      background: var(--bg3);
+      padding: 12px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .rm-entity-name { font-size: .92rem; font-weight: 700; flex: 1; }
+    .rm-entity-desc { font-size: .78rem; color: var(--muted); width: 100%; margin-top: 2px; }
+
+    .rm-fields-table { width: 100%; border-collapse: collapse; }
+    .rm-fields-table th {
+      background: var(--bg3);
+      text-align: left;
+      padding: 8px 14px;
+      font-size: .72rem;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .rm-fields-table td { padding: 9px 14px; font-size: .84rem; border-bottom: 1px solid var(--bg3); vertical-align: middle; }
+    .rm-fields-table tr:last-child td { border-bottom: none; }
+    .rm-fields-table tr:hover td { background: rgba(255,255,255,.015); }
+    .rm-fields-table code { font-family: monospace; background: var(--bg3); padding: 1px 5px; border-radius: 3px; font-size: .82rem; }
+
+    .type-badge {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(188,140,255,.12);
+      color: var(--accent);
+      font-family: monospace;
+    }
+    .bool-yes { color: var(--server); font-weight: 700; }
+    .bool-no  { color: var(--muted); }
+
+    /* API list */
+    .rm-api-list { display: flex; flex-direction: column; gap: 12px; }
+    .rm-api-row {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .rm-api-main { flex: 1; min-width: 0; }
+    .rm-api-method-path { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .rm-api-path    { font-family: monospace; font-size: .85rem; }
+    .rm-api-summary { font-size: .84rem; color: var(--muted); margin-bottom: 8px; }
+    .rm-api-detail-row { font-size: .8rem; color: var(--muted); margin-top: 4px; }
+    .rm-api-detail-row strong { color: var(--text); margin-right: 4px; }
+
+    .method-badge {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-family: monospace;
+      letter-spacing: .03em;
+      flex-shrink: 0;
+    }
+    .method-GET    { background: rgba(63,185,80,.15);   color: #3fb950; }
+    .method-POST   { background: rgba(88,166,255,.15);  color: #58a6ff; }
+    .method-PUT    { background: rgba(188,140,255,.15); color: #bc8cff; }
+    .method-PATCH  { background: rgba(240,136,62,.15);  color: #f0883e; }
+    .method-DELETE { background: rgba(247,129,102,.15); color: #f78166; }
+
+    .auth-badge { font-size: .7rem; font-weight: 600; padding: 2px 7px; border-radius: 4px; display: inline-block; }
+    .auth-yes { background: rgba(247,129,102,.12); color: var(--db); }
+    .auth-no  { background: var(--bg3); color: var(--muted); }
+
+    /* Form controls */
+    .rm-input, .rm-textarea, .rm-select {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: .88rem;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      box-sizing: border-box;
+    }
+    .rm-textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+    .rm-select option { background: var(--bg2); }
+    .rm-input:focus, .rm-textarea:focus, .rm-select:focus {
+      border-color: var(--client);
+      box-shadow: 0 0 0 3px rgba(88,166,255,.15);
+    }
+    .rm-label {
+      display: block;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .rm-field-group  { display: flex; flex-direction: column; gap: 4px; }
+    .rm-form-row     { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .rm-form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+    .rm-checkbox-row { display: flex; align-items: center; gap: 8px; }
+    .rm-checkbox-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--client); cursor: pointer; }
+    .rm-checkbox-row label { font-size: .85rem; color: var(--text); cursor: pointer; }
+    @media (max-width: 600px) { .rm-form-row { grid-template-columns: 1fr; } }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: fadeIn .2s ease;
+    }
+    .modal-header {
+      padding: 20px 22px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: var(--bg2);
+      z-index: 1;
+    }
+    .modal-title { font-size: 1.05rem; font-weight: 700; }
+    .modal-close { background: none; border: none; color: var(--muted); font-size: 1.4rem; cursor: pointer; padding: 2px 8px; border-radius: 6px; line-height: 1; }
+    .modal-close:hover { background: var(--bg3); color: var(--text); }
+    .modal-body { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+    .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+    .modal-export { max-width: 680px; }
+
+    .rm-export-pre {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'JetBrains Mono','Fira Code',monospace;
+      font-size: .76rem;
+      line-height: 1.6;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    /* Toast */
+    .rm-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--text);
+      box-shadow: 0 8px 32px var(--shadow);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: opacity .3s;
+      animation: slideUp .3s ease;
+    }
+    .rm-toast.success { border-left: 3px solid var(--server); }
+    .rm-toast.error   { border-left: 3px solid var(--db); }
+    @keyframes slideUp {
+      from { transform: translateY(16px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* Export button */
+    .btn-export {
+      background: rgba(188,140,255,.1);
+      border: 1px solid rgba(188,140,255,.3);
+      color: var(--accent);
+      font-family: var(--font);
+      font-size: .85rem;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-export:hover { background: rgba(188,140,255,.22); }
+
+    @media (max-width: 600px) {
+      #rm-root { padding: 20px 14px 48px; }
+      .rm-api-row { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
+<div class="app-shell">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Sidebar
+  ═══════════════════════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-logo">AxisQ</span>
+      <button class="sidebar-hamburger" aria-label="关闭菜单">✕</button>
+    </div>
+    <nav>
+      <div class="nav-group">
+        <div class="nav-group-label">Web 应用</div>
+        <ul class="nav-items">
+          <li><button class="nav-item active" data-page="intro">📊 运行介绍</button></li>
+          <li><button class="nav-item"        data-page="req" >📋 需求管理</button></li>
+        </ul>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="sidebar-overlay"></div>
+
+  <main class="main-content">
+    <!-- Mobile topbar -->
+    <div class="mobile-topbar">
+      <button class="mobile-menu-btn" aria-label="打开菜单">☰</button>
+      <span class="mobile-title" id="mobile-title">运行介绍</span>
+    </div>
+
+    <!-- ─── Page: 运行介绍 ─────────────────────────────── -->
+    <div class="page" id="page-intro">
 
 <!-- ============================================================
      Hero
@@ -931,6 +1546,21 @@ Content-Type: application/json<br>
 <footer>
   <p>Web应用架构可视化 · 技术小白友好版 · 2024</p>
 </footer>
+
+    </div><!-- /#page-intro -->
+
+    <!-- ─── Page: 需求管理 ─────────────────────────────── -->
+    <div class="page hidden" id="page-req">
+      <div id="rm-root"></div>
+    </div><!-- /#page-req -->
+
+  </main>
+</div><!-- /.app-shell -->
+
+<!-- Global Modal -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal" id="modal-box"></div>
+</div>
 
 <!-- ============================================================
      JavaScript: Interactive Scenarios
@@ -1318,6 +1948,787 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 // Init
 // ────────────────────────────────────────────────────────────
 renderScene();
+</script>
+
+<!-- ============================================================
+     JavaScript: Requirements Management + Navigation
+============================================================ -->
+<script>
+// ── Page-level navigation ─────────────────────────────────────
+let currentPage = 'intro';
+
+function navigateTo(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(b =>
+    b.classList.toggle('active', b.dataset.page === page)
+  );
+  document.getElementById('page-intro').classList.toggle('hidden', page !== 'intro');
+  document.getElementById('page-req').classList.toggle('hidden', page !== 'req');
+  document.getElementById('mobile-title').textContent = page === 'intro' ? '运行介绍' : '需求管理';
+  closeSidebar();
+  if (page === 'req') renderRM();
+}
+
+// ── Sidebar (mobile) ──────────────────────────────────────────
+function openSidebar() {
+  document.querySelector('.sidebar').classList.add('open');
+  document.querySelector('.sidebar-overlay').classList.add('visible');
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.querySelector('.sidebar-overlay').classList.remove('visible');
+}
+
+// ── Requirements state ────────────────────────────────────────
+let rmView          = 'project-list';   // 'project-list' | 'project-detail' | 'module-editor'
+let rmCurrentProjId = null;
+let rmCurrentModIdx = null;
+let rmEditorTab     = 'entities';       // 'entities' | 'apis'
+let reqProjects     = [];
+
+// ── localStorage ──────────────────────────────────────────────
+const RM_KEY = 'axisq_requirements';
+function loadProjects()  { return JSON.parse(localStorage.getItem(RM_KEY) || '[]'); }
+function saveProjects(p) { localStorage.setItem(RM_KEY, JSON.stringify(p)); reqProjects = p; }
+function genId()         { return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6); }
+
+// ── HTML escape ───────────────────────────────────────────────
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── RM router ─────────────────────────────────────────────────
+function showReqView(view, projId, modIdx) {
+  rmView = view;
+  if (projId  !== undefined) rmCurrentProjId = projId;
+  if (modIdx  !== undefined) rmCurrentModIdx = modIdx;
+  renderRM();
+}
+
+function renderRM() {
+  const root = document.getElementById('rm-root');
+  if (!root) return;
+  if      (rmView === 'project-list')   root.innerHTML = buildProjectList();
+  else if (rmView === 'project-detail') root.innerHTML = buildProjectDetail();
+  else if (rmView === 'module-editor')  root.innerHTML = buildModuleEditor();
+  bindRMEvents();
+}
+
+// ── Project List ──────────────────────────────────────────────
+function buildProjectList() {
+  const cards = reqProjects.map(p => `
+    <div class="rm-project-card" data-click-proj="${p.id}">
+      <div class="rm-project-card-name">${esc(p.name)}</div>
+      <div class="rm-project-card-desc">${esc(p.description)}</div>
+      <div class="rm-project-card-meta">
+        ${p.tech_stack ? `<span class="rm-meta-tag">⚡ ${esc(p.tech_stack)}</span>` : ''}
+        <span class="rm-meta-tag">📦 ${(p.modules||[]).length} 个模块</span>
+      </div>
+      <div class="rm-project-card-actions">
+        <button class="rm-icon-btn" data-edit-proj="${p.id}">✏️ 编辑</button>
+        <button class="rm-icon-btn danger" data-del-proj="${p.id}">🗑️ 删除</button>
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="rm-page-header">
+      <div>
+        <div class="rm-page-title">需求管理</div>
+        <div class="rm-page-sub">结构化记录项目需求，帮助后端开发者快速进行数据库与 API 设计</div>
+      </div>
+      <div class="rm-header-actions">
+        <button class="btn btn-primary" id="btn-new-proj">＋ 新建项目</button>
+      </div>
+    </div>
+    ${reqProjects.length === 0 ? `
+      <div class="rm-empty">
+        <span class="rm-empty-icon">📋</span>
+        <div class="rm-empty-title">还没有任何项目</div>
+        <div class="rm-empty-desc">点击「新建项目」开始记录你的第一个项目需求</div>
+      </div>` : ''}
+    <div class="rm-projects-grid">
+      ${cards}
+      <button class="rm-project-new" id="btn-new-proj-card">
+        <span class="rm-project-new-icon">＋</span>新建项目
+      </button>
+    </div>`;
+}
+
+// ── Project Detail ────────────────────────────────────────────
+function buildProjectDetail() {
+  const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+  if (!proj) return buildProjectList();
+
+  const modRows = (proj.modules || []).map((m, idx) => `
+    <div class="rm-module-row" data-click-mod="${idx}">
+      <div class="rm-module-info">
+        <div class="rm-module-row-name">${esc(m.name)}</div>
+        <div class="rm-module-row-desc">${esc(m.description || '暂无描述')}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+        <button class="rm-icon-btn danger" data-del-mod="${idx}">🗑️</button>
+        <span class="rm-module-arrow">›</span>
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="rm-breadcrumb">
+      <button class="rm-breadcrumb-link" data-nav="project-list">需求管理</button>
+      <span class="rm-breadcrumb-sep">›</span>
+      <span>${esc(proj.name)}</span>
+    </div>
+    <div class="rm-page-header">
+      <div>
+        <div class="rm-page-title">${esc(proj.name)}</div>
+      </div>
+      <div class="rm-header-actions">
+        <button class="btn-export" id="btn-export-md">📤 导出 Markdown</button>
+        <button class="btn btn-ghost" data-edit-proj="${proj.id}">✏️ 编辑项目</button>
+      </div>
+    </div>
+    <div class="rm-project-info-bar">
+      <div class="rm-project-info-desc">${esc(proj.description)}</div>
+      ${proj.tech_stack ? `<div class="rm-project-info-stack">⚡ ${esc(proj.tech_stack)}</div>` : ''}
+    </div>
+    <div class="rm-section-header">
+      <div>
+        <div class="rm-section-title">功能模块</div>
+        <div class="rm-section-sub">每个模块代表一个功能域，如「用户管理」「订单系统」</div>
+      </div>
+      <button class="btn btn-primary" id="btn-show-add-mod">＋ 新建模块</button>
+    </div>
+    <div class="rm-add-module-form hidden" id="add-mod-form">
+      <div class="rm-form-row">
+        <div class="rm-field-group">
+          <label class="rm-label">模块名称 *</label>
+          <input class="rm-input" id="mod-name-inp" placeholder="如：用户管理、订单系统" />
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">模块描述</label>
+          <input class="rm-input" id="mod-desc-inp" placeholder="这个模块负责什么" />
+        </div>
+      </div>
+      <div class="rm-form-actions">
+        <button class="btn btn-ghost" id="btn-cancel-mod">取消</button>
+        <button class="btn btn-primary" id="btn-save-mod">保存模块</button>
+      </div>
+    </div>
+    <div class="rm-module-list">
+      ${modRows || `
+        <div class="rm-empty" style="padding:40px 24px">
+          <span class="rm-empty-icon" style="font-size:2rem">📦</span>
+          <div class="rm-empty-title">还没有模块</div>
+          <div class="rm-empty-desc">点击「新建模块」添加第一个功能模块</div>
+        </div>`}
+    </div>`;
+}
+
+// ── Module Editor ─────────────────────────────────────────────
+function buildModuleEditor() {
+  const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+  if (!proj) return buildProjectList();
+  const mod  = (proj.modules || [])[rmCurrentModIdx];
+  if (!mod)  return buildProjectDetail();
+
+  return `
+    <div class="rm-breadcrumb">
+      <button class="rm-breadcrumb-link" data-nav="project-list">需求管理</button>
+      <span class="rm-breadcrumb-sep">›</span>
+      <button class="rm-breadcrumb-link" data-nav="project-detail">${esc(proj.name)}</button>
+      <span class="rm-breadcrumb-sep">›</span>
+      <span>${esc(mod.name)}</span>
+    </div>
+    <div class="rm-page-header">
+      <div>
+        <div class="rm-page-title">${esc(mod.name)}</div>
+        ${mod.description ? `<div class="rm-page-sub">${esc(mod.description)}</div>` : ''}
+      </div>
+    </div>
+    <div class="rm-tabs">
+      <button class="rm-tab-btn ${rmEditorTab==='entities'?'active':''}" data-tab="entities">🗄️ 数据库实体</button>
+      <button class="rm-tab-btn ${rmEditorTab==='apis'?'active':''}"     data-tab="apis">🔌 API 接口</button>
+    </div>
+    <div id="rm-tab-content">
+      ${rmEditorTab === 'entities' ? buildEntitiesTab(mod) : buildApisTab(mod)}
+    </div>`;
+}
+
+// ── Entities Tab ──────────────────────────────────────────────
+function buildEntitiesTab(mod) {
+  const cards = (mod.entities || []).map((ent, ei) => {
+    const rows = (ent.fields || []).map((f, fi) => `
+      <tr>
+        <td><code>${esc(f.field_name)}</code></td>
+        <td><span class="type-badge">${esc(f.type)}</span></td>
+        <td class="${f.required?'bool-yes':'bool-no'}">${f.required?'是':'否'}</td>
+        <td class="${f.unique  ?'bool-yes':'bool-no'}">${f.unique  ?'是':'否'}</td>
+        <td style="color:var(--muted);font-size:.8rem">${esc(f.notes||'')}</td>
+        <td><button class="rm-icon-btn danger" style="padding:3px 8px" data-del-field="${ei}-${fi}">✕</button></td>
+      </tr>`).join('');
+    return `
+      <div class="rm-entity-card">
+        <div class="rm-entity-header">
+          <div style="flex:1">
+            <div class="rm-entity-name">📋 ${esc(ent.name)}</div>
+            ${ent.description?`<div class="rm-entity-desc">${esc(ent.description)}</div>`:''}
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0">
+            <button class="rm-icon-btn" data-add-field="${ei}">＋ 字段</button>
+            <button class="rm-icon-btn danger" data-del-entity="${ei}">🗑️</button>
+          </div>
+        </div>
+        <table class="rm-fields-table">
+          <thead><tr><th>字段名</th><th>类型</th><th>必填</th><th>唯一</th><th>备注</th><th></th></tr></thead>
+          <tbody>${rows||'<tr><td colspan="6" style="padding:14px;color:var(--muted);text-align:center;font-size:.84rem">暂无字段，点击「+ 字段」添加</td></tr>'}</tbody>
+        </table>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="rm-section-header">
+      <div>
+        <div class="rm-section-title">数据库实体</div>
+        <div class="rm-section-sub">每个实体对应一张数据库表；字段即列定义</div>
+      </div>
+      <button class="btn btn-primary" id="btn-add-entity">＋ 新建实体</button>
+    </div>
+    <div class="rm-entity-list">
+      ${cards||`
+        <div class="rm-empty" style="padding:40px 24px">
+          <span class="rm-empty-icon" style="font-size:2rem">🗄️</span>
+          <div class="rm-empty-title">还没有数据实体</div>
+          <div class="rm-empty-desc">点击「新建实体」定义第一张数据库表</div>
+        </div>`}
+    </div>`;
+}
+
+// ── APIs Tab ──────────────────────────────────────────────────
+function buildApisTab(mod) {
+  const rows = (mod.apis || []).map((api, ai) => `
+    <div class="rm-api-row">
+      <div class="rm-api-main">
+        <div class="rm-api-method-path">
+          <span class="method-badge method-${api.method}">${api.method}</span>
+          <span class="rm-api-path">${esc(api.path)}</span>
+          <span class="auth-badge ${api.auth_required?'auth-yes':'auth-no'}">${api.auth_required?'🔒 需鉴权':'🔓 无需鉴权'}</span>
+        </div>
+        <div class="rm-api-summary">${esc(api.summary)}</div>
+        ${api.request_body  ? `<div class="rm-api-detail-row"><strong>入参：</strong>${esc(api.request_body)}</div>`  : ''}
+        ${api.response_desc ? `<div class="rm-api-detail-row"><strong>返回：</strong>${esc(api.response_desc)}</div>` : ''}
+      </div>
+      <div style="flex-shrink:0">
+        <button class="rm-icon-btn danger" data-del-api="${ai}">🗑️</button>
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="rm-section-header">
+      <div>
+        <div class="rm-section-title">API 接口设计</div>
+        <div class="rm-section-sub">每条记录对应后端的一个路由</div>
+      </div>
+      <button class="btn btn-primary" id="btn-add-api">＋ 新增接口</button>
+    </div>
+    <div class="rm-api-list">
+      ${rows||`
+        <div class="rm-empty" style="padding:40px 24px">
+          <span class="rm-empty-icon" style="font-size:2rem">🔌</span>
+          <div class="rm-empty-title">还没有接口</div>
+          <div class="rm-empty-desc">点击「新增接口」定义第一个 API</div>
+        </div>`}
+    </div>`;
+}
+
+// ── Bind events ───────────────────────────────────────────────
+function bindRMEvents() {
+  const root = document.getElementById('rm-root');
+  if (!root) return;
+
+  // Breadcrumb back links
+  root.querySelectorAll('[data-nav]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const v = el.dataset.nav;
+      if (v === 'project-list')   showReqView('project-list');
+      if (v === 'project-detail') showReqView('project-detail');
+    });
+  });
+
+  // Click project card → detail
+  root.querySelectorAll('[data-click-proj]').forEach(el => {
+    el.addEventListener('click', e => {
+      if (e.target.closest('[data-edit-proj],[data-del-proj]')) return;
+      showReqView('project-detail', el.dataset.clickProj);
+    });
+  });
+
+  // Edit project
+  root.querySelectorAll('[data-edit-proj]').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); openProjectModal(el.dataset.editProj); });
+  });
+
+  // Delete project
+  root.querySelectorAll('[data-del-proj]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!confirm('确认删除该项目？此操作不可撤销。')) return;
+      saveProjects(reqProjects.filter(p => p.id !== el.dataset.delProj));
+      showReqView('project-list');
+      toast('项目已删除', 'success');
+    });
+  });
+
+  // New project buttons
+  ['btn-new-proj','btn-new-proj-card'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', () => openProjectModal(null));
+  });
+
+  // Click module row → editor
+  root.querySelectorAll('[data-click-mod]').forEach(el => {
+    el.addEventListener('click', e => {
+      if (e.target.closest('[data-del-mod]')) return;
+      showReqView('module-editor', rmCurrentProjId, +el.dataset.clickMod);
+    });
+  });
+
+  // Delete module
+  root.querySelectorAll('[data-del-mod]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!confirm('确认删除该模块？')) return;
+      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+      proj.modules.splice(+el.dataset.delMod, 1);
+      saveProjects([...reqProjects]);
+      renderRM();
+      toast('模块已删除', 'success');
+    });
+  });
+
+  // Show inline add-module form
+  document.getElementById('btn-show-add-mod')?.addEventListener('click', () => {
+    document.getElementById('add-mod-form').classList.remove('hidden');
+    document.getElementById('mod-name-inp').focus();
+  });
+  document.getElementById('btn-cancel-mod')?.addEventListener('click', () => {
+    document.getElementById('add-mod-form').classList.add('hidden');
+  });
+  document.getElementById('btn-save-mod')?.addEventListener('click', () => {
+    const name = document.getElementById('mod-name-inp').value.trim();
+    if (!name) { toast('请输入模块名称', 'error'); return; }
+    const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+    if (!proj.modules) proj.modules = [];
+    proj.modules.push({ name, description: document.getElementById('mod-desc-inp').value.trim(), entities: [], apis: [] });
+    saveProjects([...reqProjects]);
+    renderRM();
+    toast('模块已添加', 'success');
+  });
+
+  // Editor tabs
+  root.querySelectorAll('[data-tab]').forEach(el => {
+    el.addEventListener('click', () => {
+      rmEditorTab = el.dataset.tab;
+      root.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === rmEditorTab));
+      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+      const mod  = (proj?.modules||[])[rmCurrentModIdx];
+      document.getElementById('rm-tab-content').innerHTML =
+        rmEditorTab === 'entities' ? buildEntitiesTab(mod) : buildApisTab(mod);
+      bindTabEvents();
+    });
+  });
+
+  bindTabEvents();
+
+  // Export
+  document.getElementById('btn-export-md')?.addEventListener('click', () => {
+    const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+    openExportModal(proj);
+  });
+}
+
+function bindTabEvents() {
+  const root = document.getElementById('rm-root');
+  if (!root) return;
+
+  // Add entity
+  document.getElementById('btn-add-entity')?.addEventListener('click', () => openEntityModal());
+
+  // Delete entity
+  root.querySelectorAll('[data-del-entity]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!confirm('确认删除该实体？')) return;
+      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+      proj.modules[rmCurrentModIdx].entities.splice(+el.dataset.delEntity, 1);
+      saveProjects([...reqProjects]);
+      renderRM();
+      toast('实体已删除', 'success');
+    });
+  });
+
+  // Add field
+  root.querySelectorAll('[data-add-field]').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); openFieldModal(+el.dataset.addField); });
+  });
+
+  // Delete field
+  root.querySelectorAll('[data-del-field]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!confirm('确认删除该字段？')) return;
+      const [ei, fi] = el.dataset.delField.split('-').map(Number);
+      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+      proj.modules[rmCurrentModIdx].entities[ei].fields.splice(fi, 1);
+      saveProjects([...reqProjects]);
+      renderRM();
+      toast('字段已删除', 'success');
+    });
+  });
+
+  // Add API
+  document.getElementById('btn-add-api')?.addEventListener('click', () => openApiModal());
+
+  // Delete API
+  root.querySelectorAll('[data-del-api]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!confirm('确认删除该接口？')) return;
+      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+      proj.modules[rmCurrentModIdx].apis.splice(+el.dataset.delApi, 1);
+      saveProjects([...reqProjects]);
+      renderRM();
+      toast('接口已删除', 'success');
+    });
+  });
+}
+
+// ── Modal helpers ─────────────────────────────────────────────
+function openModal(html, wide) {
+  const box = document.getElementById('modal-box');
+  box.className = 'modal' + (wide ? ' modal-export' : '');
+  box.innerHTML = html;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+  box.querySelector('[data-modal-close]')?.addEventListener('click', closeModal);
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+// ── Project Modal ─────────────────────────────────────────────
+function openProjectModal(projId) {
+  const proj = projId ? reqProjects.find(p => p.id === projId) : null;
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">${proj ? '编辑项目' : '新建项目'}</div>
+      <button class="modal-close" data-modal-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="rm-field-group">
+        <label class="rm-label">项目名称 *</label>
+        <input class="rm-input" id="proj-name" placeholder="如：企业内部工单系统" value="${esc(proj?.name||'')}" />
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">项目描述 *</label>
+        <textarea class="rm-textarea" id="proj-desc" placeholder="一句话说明项目目标和核心用途">${esc(proj?.description||'')}</textarea>
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">技术栈 <span style="font-weight:400;text-transform:none;letter-spacing:0">(选填)</span></label>
+        <input class="rm-input" id="proj-stack" placeholder="如：FastAPI + PostgreSQL + Vue3" value="${esc(proj?.tech_stack||'')}" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>取消</button>
+      <button class="btn btn-primary" id="btn-save-proj">保存</button>
+    </div>`);
+
+  document.getElementById('btn-save-proj').addEventListener('click', () => {
+    const name  = document.getElementById('proj-name').value.trim();
+    const desc  = document.getElementById('proj-desc').value.trim();
+    const stack = document.getElementById('proj-stack').value.trim();
+    if (!name) { toast('请填写项目名称', 'error'); return; }
+    if (!desc) { toast('请填写项目描述', 'error'); return; }
+    if (proj) {
+      proj.name = name; proj.description = desc; proj.tech_stack = stack;
+      saveProjects([...reqProjects]);
+      toast('项目已更新', 'success');
+    } else {
+      const p = { id: genId(), name, description: desc, tech_stack: stack, created_at: new Date().toISOString(), modules: [] };
+      saveProjects([...reqProjects, p]);
+      rmCurrentProjId = p.id;
+      toast('项目已创建', 'success');
+    }
+    closeModal();
+    renderRM();
+  });
+}
+
+// ── Entity Modal ──────────────────────────────────────────────
+function openEntityModal() {
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">新建数据实体</div>
+      <button class="modal-close" data-modal-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="rm-field-group">
+        <label class="rm-label">实体名称 * <span style="font-weight:400;text-transform:none;letter-spacing:0">(对应数据库表名)</span></label>
+        <input class="rm-input" id="ent-name" placeholder="如：User、Order、Product" />
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">描述</label>
+        <input class="rm-input" id="ent-desc" placeholder="这张表存储什么数据" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>取消</button>
+      <button class="btn btn-primary" id="btn-save-ent">创建实体</button>
+    </div>`);
+
+  document.getElementById('btn-save-ent').addEventListener('click', () => {
+    const name = document.getElementById('ent-name').value.trim();
+    if (!name) { toast('请填写实体名称', 'error'); return; }
+    const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+    const mod  = proj.modules[rmCurrentModIdx];
+    if (!mod.entities) mod.entities = [];
+    mod.entities.push({ name, description: document.getElementById('ent-desc').value.trim(), fields: [] });
+    saveProjects([...reqProjects]);
+    closeModal();
+    renderRM();
+    toast('实体已创建', 'success');
+  });
+}
+
+// ── Field Modal ───────────────────────────────────────────────
+function openFieldModal(entityIdx) {
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">添加字段</div>
+      <button class="modal-close" data-modal-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="rm-form-row">
+        <div class="rm-field-group">
+          <label class="rm-label">字段名 *</label>
+          <input class="rm-input" id="fld-name" placeholder="如：email, created_at" />
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">类型 *</label>
+          <select class="rm-select" id="fld-type">
+            <option value="string">string（文本）</option>
+            <option value="number">number（数字）</option>
+            <option value="boolean">boolean（是/否）</option>
+            <option value="datetime">datetime（时间）</option>
+            <option value="text">text（长文本）</option>
+            <option value="enum">enum（枚举）</option>
+            <option value="fk">fk（外键引用）</option>
+          </select>
+        </div>
+      </div>
+      <div class="rm-form-row">
+        <div class="rm-checkbox-row">
+          <input type="checkbox" id="fld-required" checked />
+          <label for="fld-required">必填</label>
+        </div>
+        <div class="rm-checkbox-row">
+          <input type="checkbox" id="fld-unique" />
+          <label for="fld-unique">唯一约束</label>
+        </div>
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">备注说明</label>
+        <input class="rm-input" id="fld-notes" placeholder="如：外键关联 users.id；企业邮箱格式；枚举值 admin|user" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>取消</button>
+      <button class="btn btn-primary" id="btn-save-fld">添加字段</button>
+    </div>`);
+
+  document.getElementById('btn-save-fld').addEventListener('click', () => {
+    const field_name = document.getElementById('fld-name').value.trim();
+    if (!field_name) { toast('请填写字段名', 'error'); return; }
+    const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+    const ent  = proj.modules[rmCurrentModIdx].entities[entityIdx];
+    if (!ent.fields) ent.fields = [];
+    ent.fields.push({
+      field_name,
+      type:     document.getElementById('fld-type').value,
+      required: document.getElementById('fld-required').checked,
+      unique:   document.getElementById('fld-unique').checked,
+      notes:    document.getElementById('fld-notes').value.trim()
+    });
+    saveProjects([...reqProjects]);
+    closeModal();
+    renderRM();
+    toast('字段已添加', 'success');
+  });
+}
+
+// ── API Modal ─────────────────────────────────────────────────
+function openApiModal() {
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">新增 API 接口</div>
+      <button class="modal-close" data-modal-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="rm-form-row">
+        <div class="rm-field-group">
+          <label class="rm-label">HTTP 方法 *</label>
+          <select class="rm-select" id="api-method">
+            <option>GET</option><option>POST</option><option>PUT</option>
+            <option>PATCH</option><option>DELETE</option>
+          </select>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">路径 *</label>
+          <input class="rm-input" id="api-path" placeholder="如：/api/users/{id}" />
+        </div>
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">接口描述 *</label>
+        <input class="rm-input" id="api-summary" placeholder="如：获取当前登录用户的个人信息" />
+      </div>
+      <div class="rm-checkbox-row">
+        <input type="checkbox" id="api-auth" checked />
+        <label for="api-auth">需要登录鉴权（Token）</label>
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">入参说明</label>
+        <input class="rm-input" id="api-req" placeholder="如：body: {email, password, name}；query: page, limit" />
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">返回值说明</label>
+        <input class="rm-input" id="api-resp" placeholder="如：{token, user: {id, email, name}}" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>取消</button>
+      <button class="btn btn-primary" id="btn-save-api">保存接口</button>
+    </div>`);
+
+  document.getElementById('btn-save-api').addEventListener('click', () => {
+    const path    = document.getElementById('api-path').value.trim();
+    const summary = document.getElementById('api-summary').value.trim();
+    if (!path || !summary) { toast('请填写路径和描述', 'error'); return; }
+    const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+    const mod  = proj.modules[rmCurrentModIdx];
+    if (!mod.apis) mod.apis = [];
+    mod.apis.push({
+      method:        document.getElementById('api-method').value,
+      path,
+      summary,
+      auth_required: document.getElementById('api-auth').checked,
+      request_body:  document.getElementById('api-req').value.trim(),
+      response_desc: document.getElementById('api-resp').value.trim()
+    });
+    saveProjects([...reqProjects]);
+    closeModal();
+    renderRM();
+    toast('接口已添加', 'success');
+  });
+}
+
+// ── Export Markdown ───────────────────────────────────────────
+function generateMarkdown(proj) {
+  let md = `# 项目需求文档：${proj.name}\n\n`;
+  md += `**描述：** ${proj.description}\n`;
+  if (proj.tech_stack) md += `**技术栈：** ${proj.tech_stack}\n`;
+  md += `**生成时间：** ${new Date().toLocaleString('zh-CN')}\n\n---\n\n`;
+
+  (proj.modules || []).forEach((mod, mi) => {
+    md += `## 模块 ${mi + 1}：${mod.name}\n\n`;
+    if (mod.description) md += `${mod.description}\n\n`;
+
+    if ((mod.entities || []).length) {
+      md += `### 数据库设计\n\n`;
+      mod.entities.forEach(ent => {
+        md += `#### 表：${ent.name}\n\n`;
+        if (ent.description) md += `> ${ent.description}\n\n`;
+        md += `| 字段名 | 类型 | 必填 | 唯一 | 备注 |\n`;
+        md += `|--------|------|------|------|------|\n`;
+        (ent.fields || []).forEach(f => {
+          md += `| \`${f.field_name}\` | ${f.type} | ${f.required?'是':'否'} | ${f.unique?'是':'否'} | ${f.notes||''} |\n`;
+        });
+        md += `\n`;
+      });
+    }
+
+    if ((mod.apis || []).length) {
+      md += `### API 接口设计\n\n`;
+      mod.apis.forEach((api, ai) => {
+        md += `#### ${ai + 1}. ${api.method} ${api.path}\n\n`;
+        md += `- **功能：** ${api.summary}\n`;
+        md += `- **鉴权：** ${api.auth_required ? '需要 Token' : '无需鉴权'}\n`;
+        if (api.request_body)  md += `- **入参：** ${api.request_body}\n`;
+        if (api.response_desc) md += `- **返回：** ${api.response_desc}\n`;
+        md += `\n`;
+      });
+    }
+
+    md += `---\n\n`;
+  });
+
+  md += `*由 AxisQ 需求管理工具自动生成*\n`;
+  return md;
+}
+
+function openExportModal(proj) {
+  const md = generateMarkdown(proj);
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">📤 导出需求 Markdown</div>
+      <button class="modal-close" data-modal-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:.84rem;color:var(--muted);line-height:1.6">
+        复制下方内容，粘贴给 Claude Code 或后端开发人员——可直接用于数据库建表和 API 路由开发。
+      </div>
+      <pre class="rm-export-pre">${esc(md)}</pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>关闭</button>
+      <button class="btn btn-primary" id="btn-copy-md">📋 复制到剪贴板</button>
+    </div>`, true);
+
+  document.getElementById('btn-copy-md').addEventListener('click', () => {
+    navigator.clipboard.writeText(md).then(() => {
+      document.getElementById('btn-copy-md').textContent = '✅ 已复制！';
+      setTimeout(closeModal, 1400);
+    }).catch(() => toast('复制失败，请手动选中内容复制', 'error'));
+  });
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+let _toastTimer = null;
+function toast(msg, type = 'success') {
+  let el = document.querySelector('.rm-toast');
+  if (!el) { el = document.createElement('div'); document.body.appendChild(el); }
+  el.className = `rm-toast ${type}`;
+  el.textContent = (type === 'success' ? '✅ ' : '⚠️ ') + msg;
+  el.style.opacity = '1';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 2400);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+reqProjects = loadProjects();
+
+// Sidebar nav items
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => navigateTo(btn.dataset.page));
+});
+
+// Mobile hamburger
+document.querySelector('.mobile-menu-btn')?.addEventListener('click', openSidebar);
+document.querySelector('.sidebar-hamburger')?.addEventListener('click', closeSidebar);
+document.querySelector('.sidebar-overlay')?.addEventListener('click', closeSidebar);
+
+// Close modal on overlay click
+document.getElementById('modal-overlay')?.addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
 </script>
 
 </body>
