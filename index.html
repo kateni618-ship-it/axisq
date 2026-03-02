@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web应用架构解析 — 技术小白指南</title>
+  <style>
+    /* ============================================================
+       Base & Reset
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --bg2:       #161b22;
+      --bg3:       #21262d;
+      --border:    #30363d;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --client:    #58a6ff;
+      --server:    #3fb950;
+      --db:        #f78166;
+      --accent:    #bc8cff;
+      --shadow:    rgba(0,0,0,.5);
+      --radius:    14px;
+      --font:      'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ============================================================
+       Hero
+    ============================================================ */
+    .hero {
+      text-align: center;
+      padding: 64px 24px 48px;
+      background: linear-gradient(180deg, #161b22 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 30%, rgba(88,166,255,.08) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 70%, rgba(188,140,255,.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(88,166,255,.12);
+      border: 1px solid rgba(88,166,255,.3);
+      color: var(--client);
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      padding: 4px 14px;
+      border-radius: 99px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -.02em;
+      background: linear-gradient(135deg, #58a6ff 0%, #bc8cff 50%, #f78166 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ============================================================
+       Layout
+    ============================================================ */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    section { padding: 56px 0; }
+    section + section { border-top: 1px solid var(--border); }
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: .92rem;
+      margin-bottom: 36px;
+    }
+
+    /* ============================================================
+       Three pillars
+    ============================================================ */
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .pillar {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .pillar:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px var(--shadow);
+    }
+    .pillar::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--pcolor);
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .pillar.client  { --pcolor: var(--client); }
+    .pillar.server  { --pcolor: var(--server); }
+    .pillar.db      { --pcolor: var(--db); }
+    .pillar-icon {
+      font-size: 2.4rem;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .pillar h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .pillar-role {
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--pcolor);
+      margin-bottom: 12px;
+    }
+    .pillar p {
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .pillar ul {
+      margin-top: 14px;
+      list-style: none;
+    }
+    .pillar ul li {
+      font-size: .85rem;
+      color: var(--muted);
+      padding: 4px 0;
+    }
+    .pillar ul li::before {
+      content: '▸ ';
+      color: var(--pcolor);
+    }
+
+    /* ============================================================
+       Architecture Diagram
+    ============================================================ */
+    .arch-wrap {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      overflow: hidden;
+    }
+    .arch-diagram {
+      display: grid;
+      grid-template-columns: 1fr 60px 1fr 60px 1fr;
+      align-items: center;
+      gap: 0;
+      min-height: 220px;
+    }
+    .arch-node {
+      border-radius: var(--radius);
+      padding: 22px 18px;
+      text-align: center;
+      border: 2px solid transparent;
+      transition: border-color .3s, box-shadow .3s, transform .3s;
+      cursor: default;
+    }
+    .arch-node.client  { background: rgba(88,166,255,.08);  border-color: rgba(88,166,255,.25); }
+    .arch-node.server  { background: rgba(63,185,80,.08);   border-color: rgba(63,185,80,.25); }
+    .arch-node.db      { background: rgba(247,129,102,.08); border-color: rgba(247,129,102,.25); }
+    .arch-node.active  {
+      border-color: var(--ncolor) !important;
+      box-shadow: 0 0 24px rgba(var(--nrgb), .35);
+      transform: scale(1.04);
+    }
+    .arch-node.client  { --ncolor: var(--client); --nrgb: 88,166,255; }
+    .arch-node.server  { --ncolor: var(--server); --nrgb: 63,185,80;  }
+    .arch-node.db      { --ncolor: var(--db);     --nrgb: 247,129,102; }
+    .arch-icon { font-size: 2.6rem; margin-bottom: 10px; display: block; }
+    .arch-label { font-size: .95rem; font-weight: 700; margin-bottom: 4px; }
+    .arch-sublabel {
+      font-size: .75rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* Arrow columns */
+    .arch-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      position: relative;
+    }
+    .arrow-line {
+      width: 100%;
+      height: 2px;
+      background: var(--border);
+      position: relative;
+      overflow: visible;
+    }
+    .arrow-packet {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      opacity: 0;
+      transition: background .3s;
+    }
+    .arrow-req  .arrow-packet { background: var(--client); }
+    .arrow-resp .arrow-packet { background: var(--server); }
+    .arrow-label {
+      font-size: .68rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+
+    /* Animate packets along the arrows */
+    @keyframes slideRight {
+      0%   { left: -5px;   opacity: 1; }
+      100% { left: calc(100% + 5px); opacity: 0; }
+    }
+    @keyframes slideLeft {
+      0%   { right: -5px;  left: auto; opacity: 1; }
+      100% { right: calc(100% + 5px); left: auto; opacity: 0; }
+    }
+    .animate-right { animation: slideRight .9s linear forwards; }
+    .animate-left  { animation: slideLeft  .9s linear forwards; }
+
+    /* ============================================================
+       Step-by-step scenario panel
+    ============================================================ */
+    .scenario-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .tab-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--font);
+      font-size: .85rem;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 99px;
+      cursor: pointer;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .tab-btn:hover { color: var(--text); border-color: var(--muted); }
+    .tab-btn.active {
+      background: rgba(88,166,255,.15);
+      border-color: var(--client);
+      color: var(--client);
+    }
+
+    .scenario-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 700px) {
+      .scenario-panel { grid-template-columns: 1fr; }
+      .arch-diagram { grid-template-columns: 1fr 28px 1fr 28px 1fr; }
+    }
+
+    /* Steps list */
+    .steps-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .steps-card h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .steps-list { list-style: none; }
+    .step-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--bg3);
+      opacity: .35;
+      transition: opacity .4s;
+    }
+    .step-item:last-child { border-bottom: none; }
+    .step-item.active { opacity: 1; }
+    .step-num {
+      min-width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .75rem;
+      font-weight: 700;
+      background: var(--bg3);
+      color: var(--muted);
+      flex-shrink: 0;
+      transition: background .4s, color .4s;
+    }
+    .step-item.active .step-num {
+      background: var(--client);
+      color: #fff;
+    }
+    .step-text { font-size: .88rem; line-height: 1.55; color: var(--muted); }
+    .step-item.active .step-text { color: var(--text); }
+    .step-who {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-bottom: 3px;
+      display: inline-block;
+    }
+    .step-who.c { background: rgba(88,166,255,.15); color: var(--client); }
+    .step-who.s { background: rgba(63,185,80,.15);  color: var(--server); }
+    .step-who.d { background: rgba(247,129,102,.15);color: var(--db); }
+
+    /* Controls */
+    .ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .btn {
+      font-family: var(--font);
+      font-size: .85rem;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s;
+    }
+    .btn:hover { opacity: .85; transform: translateY(-1px); }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--client); color: #000; }
+    .btn-ghost {
+      background: var(--bg3);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .progress-dots {
+      display: flex;
+      gap: 6px;
+      margin-left: auto;
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      transition: background .3s;
+    }
+    .dot.done { background: var(--client); border-color: var(--client); }
+
+    /* Explanation card */
+    .explain-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .explain-card h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .explain-mini {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .explain-block {
+      background: var(--bg3);
+      border-radius: 10px;
+      padding: 14px 16px;
+      border-left: 3px solid transparent;
+      transition: border-color .4s, opacity .4s;
+      opacity: .5;
+    }
+    .explain-block.active { opacity: 1; }
+    .explain-block.client-block { border-color: var(--client); }
+    .explain-block.server-block { border-color: var(--server); }
+    .explain-block.db-block     { border-color: var(--db); }
+    .explain-block p {
+      font-size: .85rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-top: 4px;
+    }
+    .explain-block strong { font-size: .8rem; font-weight: 700; }
+
+    /* ============================================================
+       Data model explainer
+    ============================================================ */
+    .db-table {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .db-table-header {
+      background: rgba(247,129,102,.1);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .db-table-header span { font-size: .8rem; font-weight: 700; color: var(--db); letter-spacing: .05em; text-transform: uppercase; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: var(--bg3);
+      text-align: left;
+      padding: 10px 16px;
+      font-size: .78rem;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr { border-bottom: 1px solid var(--bg3); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td {
+      padding: 10px 16px;
+      font-size: .85rem;
+      color: var(--text);
+    }
+    tbody tr:hover { background: var(--bg3); }
+    .tag {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(88,166,255,.15);
+      color: var(--client);
+    }
+    .tag.green { background: rgba(63,185,80,.15); color: var(--server); }
+    .tag.red   { background: rgba(247,129,102,.15); color: var(--db); }
+
+    /* ============================================================
+       Request/Response visual
+    ============================================================ */
+    .req-resp {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    @media (max-width: 600px) { .req-resp { grid-template-columns: 1fr; } }
+    .code-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .code-header {
+      background: var(--bg3);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .code-header span { font-size: .78rem; font-weight: 700; color: var(--muted); letter-spacing: .04em; }
+    .code-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cdot); }
+    .code-body {
+      padding: 16px;
+      font-family: 'JetBrains Mono','Fira Code','Cascadia Code',monospace;
+      font-size: .78rem;
+      line-height: 1.7;
+      color: var(--text);
+      overflow-x: auto;
+    }
+    .code-body .key   { color: #79c0ff; }
+    .code-body .str   { color: #a5d6ff; }
+    .code-body .num   { color: #f0883e; }
+    .code-body .kw    { color: #ff7b72; }
+    .code-body .cmt   { color: #8b949e; font-style: italic; }
+    .code-body .mth   { color: #d2a8ff; }
+    .code-body .url   { color: #3fb950; }
+
+    /* ============================================================
+       Security callouts
+    ============================================================ */
+    .callouts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .callout {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      gap: 14px;
+    }
+    .callout-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .callout h4 { font-size: .9rem; font-weight: 700; margin-bottom: 6px; }
+    .callout p  { font-size: .82rem; color: var(--muted); line-height: 1.55; }
+
+    /* ============================================================
+       Footer
+    ============================================================ */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .82rem;
+      background: var(--bg2);
+    }
+
+    /* ============================================================
+       Animations
+    ============================================================ */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn .5s ease forwards; }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(88,166,255,.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(88,166,255,0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     Hero
+============================================================ -->
+<div class="hero">
+  <div class="badge">技术小白友好版</div>
+  <h1>Web 应用如何运行？</h1>
+  <p>用可视化图解，搞懂浏览器、服务器、数据库三者之间是怎么相互配合的，以及用户数据如何被安全地独立存储。</p>
+</div>
+
+<!-- ============================================================
+     Three Pillars
+============================================================ -->
+<section>
+  <div class="container">
+    <div class="section-title">三大核心角色</div>
+    <div class="section-sub">任何 Web 应用，无论多复杂，都离不开这三个主角</div>
+    <div class="pillars">
+
+      <div class="pillar client">
+        <span class="pillar-icon">🖥️</span>
+        <h3>客户端（浏览器）</h3>
+        <div class="pillar-role">用户看到 &amp; 操作的地方</div>
+        <p>你打开网页时，浏览器就是"客户端"。它负责把代码渲染成你能看懂的页面，并接收你的点击、输入等操作。</p>
+        <ul>
+          <li>HTML — 网页骨架结构</li>
+          <li>CSS — 样式与视觉美化</li>
+          <li>JavaScript — 交互与动态逻辑</li>
+          <li>将用户操作打包成"请求"发给服务器</li>
+        </ul>
+      </div>
+
+      <div class="pillar server">
+        <span class="pillar-icon">⚙️</span>
+        <h3>服务器（后端）</h3>
+        <div class="pillar-role">幕后大脑 &amp; 决策中心</div>
+        <p>服务器是一台 24 小时运行的电脑（或云服务），接收浏览器发来的请求，经过逻辑处理后，决定要做什么，再把结果返回给浏览器。</p>
+        <ul>
+          <li>运行后端代码（Python / Node.js 等）</li>
+          <li>处理业务逻辑（注册、登录、权限验证）</li>
+          <li>与数据库交互，读写用户数据</li>
+          <li>对外暴露 API 接口</li>
+        </ul>
+      </div>
+
+      <div class="pillar db">
+        <span class="pillar-icon">🗄️</span>
+        <h3>数据库</h3>
+        <div class="pillar-role">数据的永久存储仓库</div>
+        <p>数据库是专门存储数据的软件。无论用户关闭浏览器还是服务器重启，数据都不会丢失，就像一个超级整洁的电子档案室。</p>
+        <ul>
+          <li>结构化地存储用户、文章、订单等数据</li>
+          <li>支持快速查询（"找出所有叫张三的用户"）</li>
+          <li>常见类型：MySQL、PostgreSQL、MongoDB</li>
+          <li>只有服务器才能直接访问数据库</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     Interactive Architecture Diagram + Scenarios
+============================================================ -->
+<section>
+  <div class="container">
+    <div class="section-title">交互式场景演示</div>
+    <div class="section-sub">选择一个场景，点击"下一步"看三者如何配合工作</div>
+
+    <!-- Tabs -->
+    <div class="scenario-tabs">
+      <button class="tab-btn active" data-scene="register">📝 用户注册</button>
+      <button class="tab-btn" data-scene="login">🔑 用户登录</button>
+      <button class="tab-btn" data-scene="save">💾 保存数据</button>
+      <button class="tab-btn" data-scene="load">📂 读取数据</button>
+    </div>
+
+    <!-- Architecture Diagram -->
+    <div class="arch-wrap" style="margin-bottom:20px;">
+      <div class="arch-diagram">
+        <!-- Client node -->
+        <div class="arch-node client" id="node-client">
+          <span class="arch-icon">🖥️</span>
+          <div class="arch-label">浏览器 / 客户端</div>
+          <div class="arch-sublabel">前端代码<br>HTML · CSS · JS</div>
+        </div>
+
+        <!-- Arrow: client ↔ server -->
+        <div class="arch-arrow">
+          <div class="arrow-line arrow-req" id="arrow-cs-req">
+            <div class="arrow-packet" id="pkt-cs-req"></div>
+          </div>
+          <div class="arrow-label" id="lbl-cs">HTTP 请求 →</div>
+          <div class="arrow-line arrow-resp" id="arrow-cs-resp">
+            <div class="arrow-packet" id="pkt-cs-resp"></div>
+          </div>
+        </div>
+
+        <!-- Server node -->
+        <div class="arch-node server" id="node-server">
+          <span class="arch-icon">⚙️</span>
+          <div class="arch-label">服务器 / 后端</div>
+          <div class="arch-sublabel">后端代码 · API<br>业务逻辑处理</div>
+        </div>
+
+        <!-- Arrow: server ↔ db -->
+        <div class="arch-arrow">
+          <div class="arrow-line arrow-req" id="arrow-sd-req">
+            <div class="arrow-packet" id="pkt-sd-req"></div>
+          </div>
+          <div class="arrow-label" id="lbl-sd">SQL 查询 →</div>
+          <div class="arrow-line arrow-resp" id="arrow-sd-resp">
+            <div class="arrow-packet" id="pkt-sd-resp"></div>
+          </div>
+        </div>
+
+        <!-- DB node -->
+        <div class="arch-node db" id="node-db">
+          <span class="arch-icon">🗄️</span>
+          <div class="arch-label">数据库</div>
+          <div class="arch-sublabel">持久化存储<br>表 · 索引 · 查询</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Steps + Explanation -->
+    <div class="scenario-panel">
+
+      <div class="steps-card">
+        <h4 id="scene-title">📝 用户注册流程</h4>
+        <ul class="steps-list" id="steps-list"></ul>
+        <div class="ctrl-row">
+          <button class="btn btn-ghost" id="btn-reset">重置</button>
+          <button class="btn btn-primary" id="btn-next">下一步 ▶</button>
+          <div class="progress-dots" id="progress-dots"></div>
+        </div>
+      </div>
+
+      <div class="explain-card">
+        <h4>当前步骤解析</h4>
+        <div class="explain-mini" id="explain-mini">
+          <div class="explain-block client-block" id="exp-client">
+            <strong>🖥️ 浏览器在做什么</strong>
+            <p id="exp-client-text">等待开始…</p>
+          </div>
+          <div class="explain-block server-block" id="exp-server">
+            <strong>⚙️ 服务器在做什么</strong>
+            <p id="exp-server-text">等待接收请求…</p>
+          </div>
+          <div class="explain-block db-block" id="exp-db">
+            <strong>🗄️ 数据库在做什么</strong>
+            <p id="exp-db-text">待机，等候服务器命令…</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     Request & Response
+============================================================ -->
+<section>
+  <div class="container">
+    <div class="section-title">请求与响应长什么样？</div>
+    <div class="section-sub">浏览器与服务器之间传递的是结构化的文本数据，以注册为例</div>
+    <div class="req-resp">
+
+      <div class="code-card">
+        <div class="code-header">
+          <div class="code-dot" style="--cdot:#58a6ff"></div>
+          <span>浏览器 → 服务器（HTTP 请求）</span>
+        </div>
+        <div class="code-body">
+<span class="kw">POST</span> <span class="url">/api/register</span> HTTP/1.1<br>
+Host: myapp.com<br>
+Content-Type: application/json<br>
+<br>
+{<br>
+&nbsp;&nbsp;<span class="key">"username"</span>: <span class="str">"张三"</span>,<br>
+&nbsp;&nbsp;<span class="key">"email"</span>:    <span class="str">"zhang@example.com"</span>,<br>
+&nbsp;&nbsp;<span class="key">"password"</span>: <span class="str">"●●●●●●●●"</span><br>
+}<br>
+<br>
+<span class="cmt">// 浏览器把用户填的表单</span><br>
+<span class="cmt">// 打包成 JSON 发给服务器</span>
+        </div>
+      </div>
+
+      <div class="code-card">
+        <div class="code-header">
+          <div class="code-dot" style="--cdot:#3fb950"></div>
+          <span>服务器 → 浏览器（HTTP 响应）</span>
+        </div>
+        <div class="code-body">
+HTTP/1.1 <span class="num">201</span> Created<br>
+Content-Type: application/json<br>
+<br>
+{<br>
+&nbsp;&nbsp;<span class="key">"success"</span>: <span class="kw">true</span>,<br>
+&nbsp;&nbsp;<span class="key">"message"</span>: <span class="str">"注册成功！"</span>,<br>
+&nbsp;&nbsp;<span class="key">"token"</span>: <span class="str">"eyJhbGci...XmQ"</span>,<br>
+&nbsp;&nbsp;<span class="key">"user"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"id"</span>:   <span class="num">1042</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"name"</span>: <span class="str">"张三"</span><br>
+&nbsp;&nbsp;}<br>
+}<br>
+<span class="cmt">// token 是"登录凭证"，</span><br>
+<span class="cmt">// 之后每次请求都带上它</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     Database model
+============================================================ -->
+<section>
+  <div class="container">
+    <div class="section-title">数据库里的数据长什么样？</div>
+    <div class="section-sub">数据库把数据存在"表"里，就像 Excel 表格，每行是一条记录</div>
+
+    <div class="db-table">
+      <div class="db-table-header">
+        <span>🗄️</span>
+        <span>users 表 — 存放所有注册用户</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>username</th>
+            <th>email</th>
+            <th>password_hash</th>
+            <th>created_at</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag">1040</span></td>
+            <td>李四</td>
+            <td>li@example.com</td>
+            <td><span class="tag red">$2b$10$x9v…</span></td>
+            <td>2024-01-10 09:22</td>
+          </tr>
+          <tr>
+            <td><span class="tag">1041</span></td>
+            <td>王五</td>
+            <td>wang@example.com</td>
+            <td><span class="tag red">$2b$10$kQ8…</span></td>
+            <td>2024-02-03 14:01</td>
+          </tr>
+          <tr style="background:rgba(88,166,255,.05);">
+            <td><span class="tag">1042</span></td>
+            <td>张三 ← 刚注册</td>
+            <td>zhang@example.com</td>
+            <td><span class="tag red">$2b$10$mJ7…</span></td>
+            <td>2024-03-02 11:45</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:14px; padding:16px 20px; background:rgba(247,129,102,.07); border:1px solid rgba(247,129,102,.2); border-radius:10px; font-size:.85rem; color:var(--muted); line-height:1.6;">
+      🔒 <strong style="color:var(--text)">密码从不明文存储！</strong>
+      注册时服务器会用 bcrypt 等算法把密码"哈希"成一串乱码再存入数据库。
+      就算数据库泄露，攻击者也无法还原出原始密码。每次登录验证时，服务器把你输入的密码再哈希一次，与数据库里的哈希值对比。
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     Security callouts
+============================================================ -->
+<section>
+  <div class="container">
+    <div class="section-title">用户数据如何做到"独立"存储？</div>
+    <div class="section-sub">三个关键机制，确保每个用户只能看到自己的数据</div>
+    <div class="callouts">
+      <div class="callout">
+        <div class="callout-icon">🪙</div>
+        <div>
+          <h4>Token 身份令牌</h4>
+          <p>登录成功后服务器颁发一个 Token（通常是 JWT），浏览器把它存在本地。之后每次请求都带上 Token，服务器解码后就知道"是谁在请求"，从而只返回该用户的数据。</p>
+        </div>
+      </div>
+      <div class="callout">
+        <div class="callout-icon">🆔</div>
+        <div>
+          <h4>用户 ID 隔离</h4>
+          <p>数据库每条记录都挂着 user_id 字段。服务器查询时加上 WHERE user_id = 当前用户 的条件，从根本上保证用户 A 的请求不会读出用户 B 的数据。</p>
+        </div>
+      </div>
+      <div class="callout">
+        <div class="callout-icon">🔐</div>
+        <div>
+          <h4>服务器是唯一入口</h4>
+          <p>浏览器（包括黑客的浏览器）根本无法直接连接数据库。数据库只对服务器开放内网端口，这层隔离是安全性的最后一道防线。</p>
+        </div>
+      </div>
+      <div class="callout">
+        <div class="callout-icon">🔒</div>
+        <div>
+          <h4>HTTPS 传输加密</h4>
+          <p>浏览器和服务器之间的所有通信都通过 HTTPS 加密，即使在公共 Wi-Fi 下，中间人也无法窥探你的账号密码或个人数据。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     One-line summary
+============================================================ -->
+<section style="padding:40px 0;">
+  <div class="container" style="text-align:center;">
+    <div style="
+      display:inline-flex;flex-direction:column;gap:12px;
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:var(--radius);padding:32px 40px;max-width:680px;
+    ">
+      <div style="font-size:1.6rem;">🎯</div>
+      <div style="font-size:1.1rem;font-weight:700;line-height:1.5;">
+        一句话总结
+      </div>
+      <div style="color:var(--muted);font-size:.92rem;line-height:1.8;">
+        <strong style="color:var(--client)">浏览器</strong>负责展示界面并收集用户操作 →
+        通过网络发送 <strong style="color:var(--text)">HTTP 请求</strong> →
+        <strong style="color:var(--server)">服务器</strong>验证身份、执行业务逻辑 →
+        向 <strong style="color:var(--db)">数据库</strong>读写数据 →
+        将结果返回给浏览器渲染。整个过程在毫秒级完成，用户 ID 贯穿始终确保数据隔离。
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Web应用架构可视化 · 技术小白友好版 · 2024</p>
+</footer>
+
+<!-- ============================================================
+     JavaScript: Interactive Scenarios
+============================================================ -->
+<script>
+// ────────────────────────────────────────────────────────────
+// Scenario Data
+// ────────────────────────────────────────────────────────────
+const SCENES = {
+  register: {
+    title: '📝 用户注册流程',
+    steps: [
+      {
+        who: 'c', label: '客户端',
+        text: '用户填写用户名、邮箱、密码，点击「注册」按钮',
+        nodes: ['client'], arrows: [],
+        client: '用户填写注册表单，前端 JS 做基本格式校验（邮箱格式是否正确、密码是否够长）',
+        server: '尚未收到请求，处于待机状态',
+        db:     '没有任何操作，数据库在休眠'
+      },
+      {
+        who: 'c', label: '客户端',
+        text: '浏览器将表单数据打包成 JSON，通过 HTTPS 发送 POST 请求给服务器',
+        nodes: ['client','server'], arrows: ['cs-req'],
+        client: '把 {username, email, password} 序列化成 JSON，发起 POST /api/register 请求。密码虽然明文发出，但 HTTPS 全程加密，网络上看不到内容。',
+        server: '正在等待网络数据包到达…',
+        db:     '休眠中，无操作'
+      },
+      {
+        who: 's', label: '服务器',
+        text: '服务器收到请求，验证数据合法性，并对密码进行哈希加密',
+        nodes: ['server'], arrows: [],
+        client: '请求已发出，在等待服务器响应（浏览器显示 loading 状态）',
+        server: '① 解析 JSON 数据 ② 检查邮箱是否已被注册 ③ 用 bcrypt 把密码哈希成乱码字符串（不可逆）',
+        db:     '即将收到查询指令'
+      },
+      {
+        who: 's', label: '服务器',
+        text: '服务器向数据库发送 INSERT 指令，将新用户存入 users 表',
+        nodes: ['server','db'], arrows: ['sd-req'],
+        client: '仍在等待响应…',
+        server: '执行 SQL：INSERT INTO users (name, email, password_hash) VALUES (\'张三\', \'zhang@…\', \'$2b$10$…\')',
+        db:     '正在接收 INSERT 指令，准备写入磁盘'
+      },
+      {
+        who: 'd', label: '数据库',
+        text: '数据库成功写入新用户，分配 user_id，返回成功给服务器',
+        nodes: ['db','server'], arrows: ['sd-resp'],
+        client: '仍在等待…',
+        server: '收到数据库确认：用户 ID = 1042，写入成功',
+        db:     '新记录已持久化到磁盘。即使断电，数据也不会丢失。返回 {insertId: 1042} 给服务器'
+      },
+      {
+        who: 's', label: '服务器',
+        text: '服务器生成 JWT Token，将成功响应返回给浏览器',
+        nodes: ['server','client'], arrows: ['cs-resp'],
+        client: '收到 HTTP 201 响应，解析 JSON，拿到 token 存入本地',
+        server: '生成 JWT Token（包含 userId=1042，有效期 7 天），打包响应 {success:true, token:"eyJ…"} 发回浏览器',
+        db:     '任务完成，继续待机'
+      },
+      {
+        who: 'c', label: '客户端',
+        text: '浏览器收到 Token，存入 localStorage，跳转到首页，注册完成！',
+        nodes: ['client'], arrows: [],
+        client: '把 token 存在 localStorage 里。下次发请求时自动带上，服务器就知道是张三在操作了。页面跳转到用户主页。',
+        server: '请求处理完毕，等待下一个请求',
+        db:     '数据已安全落盘，用户数据独立存储完成 ✅'
+      }
+    ]
+  },
+  login: {
+    title: '🔑 用户登录流程',
+    steps: [
+      {
+        who: 'c', label: '客户端',
+        text: '用户输入邮箱和密码，点击「登录」',
+        nodes: ['client'], arrows: [],
+        client: '收集邮箱和密码，准备发送登录请求',
+        server: '待机中',
+        db:     '待机中'
+      },
+      {
+        who: 'c', label: '客户端',
+        text: '浏览器发送 POST /api/login 请求，带上邮箱和密码',
+        nodes: ['client','server'], arrows: ['cs-req'],
+        client: '发送 {email, password}（通过 HTTPS 加密传输）',
+        server: '正在接收请求数据包…',
+        db:     '待机中'
+      },
+      {
+        who: 's', label: '服务器',
+        text: '服务器向数据库查询该邮箱对应的用户记录',
+        nodes: ['server','db'], arrows: ['sd-req'],
+        client: '等待响应…',
+        server: '执行 SQL：SELECT * FROM users WHERE email = \'zhang@…\'',
+        db:     '正在根据邮箱索引查找用户记录'
+      },
+      {
+        who: 'd', label: '数据库',
+        text: '数据库找到用户记录，返回给服务器（包含密码哈希值）',
+        nodes: ['db','server'], arrows: ['sd-resp'],
+        client: '等待响应…',
+        server: '收到用户数据，准备校验密码',
+        db:     '返回 {id:1042, name:"张三", password_hash:"$2b$10$…"}'
+      },
+      {
+        who: 's', label: '服务器',
+        text: '服务器用 bcrypt 验证密码，匹配成功后生成 Token',
+        nodes: ['server'], arrows: [],
+        client: '等待响应…',
+        server: '调用 bcrypt.compare(输入的密码, 数据库哈希值)，两者匹配！生成 JWT Token，有效期 7 天',
+        db:     '已返回数据，任务完成'
+      },
+      {
+        who: 's', label: '服务器',
+        text: '服务器将 Token 和用户信息返回给浏览器',
+        nodes: ['server','client'], arrows: ['cs-resp'],
+        client: '收到 Token，存入 localStorage 或 Cookie，页面跳转！',
+        server: '响应 {token:"eyJ…", user:{id:1042, name:"张三"}}',
+        db:     '待机中'
+      }
+    ]
+  },
+  save: {
+    title: '💾 用户保存数据流程',
+    steps: [
+      {
+        who: 'c', label: '客户端',
+        text: '用户写完一篇文章，点击「保存」',
+        nodes: ['client'], arrows: [],
+        client: '收集文章标题、内容，准备发请求',
+        server: '待机中',
+        db:     '待机中'
+      },
+      {
+        who: 'c', label: '客户端',
+        text: '浏览器发送请求，在 Header 里附带登录时拿到的 Token',
+        nodes: ['client','server'], arrows: ['cs-req'],
+        client: '发送 POST /api/posts，请求头包含 Authorization: Bearer eyJ…（Token），这是"我是谁"的证明',
+        server: '收到请求，开始解析 Token…',
+        db:     '待机中'
+      },
+      {
+        who: 's', label: '服务器',
+        text: '服务器解码 Token，确认用户身份（user_id = 1042）',
+        nodes: ['server'], arrows: [],
+        client: '等待响应…',
+        server: '用密钥解码 JWT，取出 userId=1042。这步验证确保：只有真正登录的用户才能保存数据，不能伪造他人身份',
+        db:     '待机中'
+      },
+      {
+        who: 's', label: '服务器',
+        text: '服务器向数据库发 INSERT 指令，将文章与 user_id 绑定存储',
+        nodes: ['server','db'], arrows: ['sd-req'],
+        client: '等待响应…',
+        server: 'INSERT INTO posts (title, content, user_id) VALUES (\'我的文章\', \'内容…\', 1042) — user_id 绑定至关重要！',
+        db:     '接收写入指令'
+      },
+      {
+        who: 'd', label: '数据库',
+        text: '数据库写入文章，返回新文章 ID',
+        nodes: ['db','server'], arrows: ['sd-resp'],
+        client: '等待响应…',
+        server: '收到确认，文章 ID = 88',
+        db:     '文章记录已落盘，user_id=1042 确保此文章只属于张三'
+      },
+      {
+        who: 's', label: '服务器',
+        text: '服务器返回保存成功的响应',
+        nodes: ['server','client'], arrows: ['cs-resp'],
+        client: '显示"保存成功"提示，文章 ID 更新到 URL',
+        server: '响应 {success:true, postId:88}',
+        db:     '待机中'
+      }
+    ]
+  },
+  load: {
+    title: '📂 读取用户数据流程',
+    steps: [
+      {
+        who: 'c', label: '客户端',
+        text: '用户打开"我的文章"页面，浏览器自动触发数据请求',
+        nodes: ['client'], arrows: [],
+        client: '页面加载时，JS 自动执行 fetch(\'/api/posts\'，带上 Token）',
+        server: '待机中',
+        db:     '待机中'
+      },
+      {
+        who: 'c', label: '客户端',
+        text: '发送 GET 请求，携带 Token',
+        nodes: ['client','server'], arrows: ['cs-req'],
+        client: '发送 GET /api/posts，Header 带 Token',
+        server: '接收请求，解析 Token…',
+        db:     '待机中'
+      },
+      {
+        who: 's', label: '服务器',
+        text: '服务器验证 Token，确认是 user_id=1042（张三）在请求',
+        nodes: ['server','db'], arrows: ['sd-req'],
+        client: '等待数据…',
+        server: '执行 SQL：SELECT * FROM posts WHERE user_id = 1042 ORDER BY created_at DESC — 关键：只查张三的文章！',
+        db:     '根据 user_id 索引快速检索数据'
+      },
+      {
+        who: 'd', label: '数据库',
+        text: '数据库返回张三的所有文章（其他人的数据完全隔离）',
+        nodes: ['db','server'], arrows: ['sd-resp'],
+        client: '等待数据…',
+        server: '收到文章列表，准备格式化',
+        db:     '返回 3 条记录，只包含 user_id=1042 的数据。李四、王五的文章不会出现在结果中'
+      },
+      {
+        who: 's', label: '服务器',
+        text: '服务器将数据格式化成 JSON，发回浏览器',
+        nodes: ['server','client'], arrows: ['cs-resp'],
+        client: '收到 JSON 数据，渲染成文章列表展示给用户',
+        server: '返回 {posts:[{id:88,title:"我的文章"…}, …]}',
+        db:     '待机中'
+      },
+      {
+        who: 'c', label: '客户端',
+        text: '浏览器用 JS 将数据渲染成可视化的页面，用户看到自己的文章列表',
+        nodes: ['client'], arrows: [],
+        client: 'JS 遍历文章数组，动态生成 HTML 列表，显示在屏幕上。全程只看到自己的数据！',
+        server: '请求处理完毕',
+        db:     '任务完成 ✅'
+      }
+    ]
+  }
+};
+
+// ────────────────────────────────────────────────────────────
+// State
+// ────────────────────────────────────────────────────────────
+let currentScene = 'register';
+let currentStep  = -1;  // -1 = not started
+
+// ────────────────────────────────────────────────────────────
+// DOM refs
+// ────────────────────────────────────────────────────────────
+const stepsList    = document.getElementById('steps-list');
+const sceneTitle   = document.getElementById('scene-title');
+const progressDots = document.getElementById('progress-dots');
+const btnNext      = document.getElementById('btn-next');
+const btnReset     = document.getElementById('btn-reset');
+const expClient    = document.getElementById('exp-client');
+const expServer    = document.getElementById('exp-server');
+const expDb        = document.getElementById('exp-db');
+const expClientTxt = document.getElementById('exp-client-text');
+const expServerTxt = document.getElementById('exp-server-text');
+const expDbTxt     = document.getElementById('exp-db-text');
+
+const nodes = {
+  client: document.getElementById('node-client'),
+  server: document.getElementById('node-server'),
+  db:     document.getElementById('node-db')
+};
+
+const packets = {
+  'cs-req':  document.getElementById('pkt-cs-req'),
+  'cs-resp': document.getElementById('pkt-cs-resp'),
+  'sd-req':  document.getElementById('pkt-sd-req'),
+  'sd-resp': document.getElementById('pkt-sd-resp')
+};
+
+const lblCs = document.getElementById('lbl-cs');
+const lblSd = document.getElementById('lbl-sd');
+
+// ────────────────────────────────────────────────────────────
+// Render
+// ────────────────────────────────────────────────────────────
+function renderScene() {
+  const scene = SCENES[currentScene];
+  sceneTitle.textContent = scene.title;
+
+  // Build step items
+  stepsList.innerHTML = '';
+  scene.steps.forEach((step, i) => {
+    const li = document.createElement('li');
+    li.className = 'step-item';
+    li.id = `step-${i}`;
+    li.innerHTML = `
+      <div class="step-num">${i + 1}</div>
+      <div>
+        <span class="step-who ${step.who}">${step.label}</span>
+        <div class="step-text">${step.text}</div>
+      </div>`;
+    stepsList.appendChild(li);
+  });
+
+  // Build dots
+  progressDots.innerHTML = '';
+  scene.steps.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = `dot-${i}`;
+    progressDots.appendChild(d);
+  });
+
+  currentStep = -1;
+  updateUI();
+}
+
+function updateUI() {
+  const scene = SCENES[currentScene];
+  const steps = scene.steps;
+  const maxStep = steps.length - 1;
+
+  // Highlight step items
+  steps.forEach((_, i) => {
+    const el = document.getElementById(`step-${i}`);
+    el && el.classList.toggle('active', i === currentStep);
+    const dot = document.getElementById(`dot-${i}`);
+    dot && dot.classList.toggle('done', i <= currentStep);
+  });
+
+  // Nodes & explanations
+  Object.values(nodes).forEach(n => n.classList.remove('active'));
+  [expClient, expServer, expDb].forEach(e => e.classList.remove('active'));
+
+  if (currentStep >= 0) {
+    const step = steps[currentStep];
+
+    step.nodes.forEach(n => nodes[n] && nodes[n].classList.add('active'));
+
+    expClient.classList.add('active');
+    expServer.classList.add('active');
+    expDb.classList.add('active');
+
+    expClientTxt.textContent = step.client;
+    expServerTxt.textContent = step.server;
+    expDbTxt.textContent     = step.db;
+
+    // Animate arrows
+    triggerArrows(step.arrows);
+  } else {
+    expClientTxt.textContent = '等待开始…';
+    expServerTxt.textContent = '等待接收请求…';
+    expDbTxt.textContent     = '待机，等候服务器命令…';
+  }
+
+  btnNext.textContent = currentStep >= maxStep ? '✓ 完成，重新演示' : '下一步 ▶';
+}
+
+function triggerArrows(arrows) {
+  arrows.forEach(key => {
+    const pkt = packets[key];
+    if (!pkt) return;
+    pkt.classList.remove('animate-right', 'animate-left');
+    // force reflow
+    void pkt.offsetWidth;
+    const isResp = key.includes('resp');
+    pkt.classList.add(isResp ? 'animate-left' : 'animate-right');
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+// Events
+// ────────────────────────────────────────────────────────────
+btnNext.addEventListener('click', () => {
+  const maxStep = SCENES[currentScene].steps.length - 1;
+  if (currentStep >= maxStep) {
+    currentStep = -1;
+  } else {
+    currentStep++;
+  }
+  updateUI();
+});
+
+btnReset.addEventListener('click', () => {
+  currentStep = -1;
+  updateUI();
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentScene = btn.dataset.scene;
+    renderScene();
+  });
+});
+
+// ────────────────────────────────────────────────────────────
+// Init
+// ────────────────────────────────────────────────────────────
+renderScene();
+</script>
+
+</body>
+</html>
