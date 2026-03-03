@@ -1166,8 +1166,170 @@
 
     @media (max-width: 600px) {
       #rm-root { padding: 20px 14px 48px; }
-      .rm-api-row { flex-direction: column; }
     }
+
+    /* ============================================================
+       Pages, Flow Diagram, Page Editor — New CSS
+    ============================================================ */
+    /* Page tree */
+    .pg-tree { display: flex; flex-direction: column; gap: 6px; }
+    .pg-tree-row {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color .2s, background .15s;
+    }
+    .pg-tree-row:hover { border-color: var(--client); background: rgba(88,166,255,.03); }
+    .pg-tree-row.pg-level2 { padding-left: 40px; margin-left: 20px; border-style: dashed; }
+    .pg-tree-icon { font-size: 1.15rem; flex-shrink: 0; }
+    .pg-tree-main { flex: 1; min-width: 0; }
+    .pg-tree-name { font-size: .92rem; font-weight: 700; margin-bottom: 5px; }
+    .pg-tree-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .pg-tree-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+
+    /* Page type / level badges */
+    .pg-type-badge {
+      display: inline-block;
+      font-size: .68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .pg-level-badge {
+      font-size: .68rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--bg3);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .pg-stat-chip {
+      font-size: .68rem;
+      font-weight: 500;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(88,166,255,.08);
+      color: var(--muted);
+      border: 1px solid rgba(88,166,255,.15);
+    }
+
+    /* Core flow bar */
+    .core-flow-bar {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 8px;
+    }
+
+    /* Flow diagram */
+    .flow-card {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      row-gap: 12px;
+      padding: 16px 0;
+    }
+    .flow-node {
+      background: rgba(88,166,255,.1);
+      border: 1px solid rgba(88,166,255,.3);
+      color: var(--client);
+      font-size: .84rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+    .flow-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 0 8px;
+    }
+    .flow-arrow-line  { font-size: 1.2rem; color: var(--muted); }
+    .flow-arrow-label { font-size: .68rem; color: var(--muted); white-space: nowrap; }
+
+    /* Page info bar (page editor top) */
+    .pg-info-bar {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    /* Schema sections */
+    .schema-section {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .schema-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg3);
+      font-size: .88rem;
+      font-weight: 700;
+      gap: 12px;
+    }
+    .schema-section .rm-add-module-form {
+      margin: 0;
+      border-radius: 0;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+    .schema-section .rm-empty { padding: 20px; text-align: center; font-size: .84rem; }
+
+    /* Action style badges */
+    .action-style-badge {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .style-primary { background: rgba(88,166,255,.15);  color: #58a6ff; }
+    .style-ghost   { background: var(--bg3);             color: var(--muted); }
+    .style-danger  { background: rgba(247,129,102,.15); color: #f78166; }
+    .style-link    { background: transparent;            color: var(--client); text-decoration: underline; }
+
+    /* Constraint list */
+    .constraint-list { padding: 8px 0; }
+    .constraint-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      border-bottom: 1px solid var(--bg3);
+      font-size: .88rem;
+    }
+    .constraint-row:last-child { border-bottom: none; }
+    .constraint-bullet { color: var(--client); font-size: 1rem; flex-shrink: 0; }
+    .constraint-text   { flex: 1; color: var(--text); }
+
+    /* Buttons */
+    .btn { font-family: var(--font); font-size: .85rem; font-weight: 600; padding: 8px 16px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; transition: background .2s, border-color .2s; }
+    .btn-primary { background: var(--client); color: #0d1117; border-color: var(--client); }
+    .btn-primary:hover { background: #79b8ff; border-color: #79b8ff; }
+    .btn-ghost { background: var(--bg3); color: var(--text); border-color: var(--border); }
+    .btn-ghost:hover { background: var(--bg); border-color: var(--client); }
   </style>
 </head>
 <body>
@@ -1980,10 +2142,11 @@ function closeSidebar() {
 }
 
 // ── Requirements state ────────────────────────────────────────
-let rmView          = 'project-list';   // 'project-list' | 'project-detail' | 'module-editor'
+let rmView          = 'project-list';
 let rmCurrentProjId = null;
 let rmCurrentModIdx = null;
-let rmEditorTab     = 'entities';       // 'entities' | 'apis'
+let rmCurrentPageId = null;
+let rmPageEditorTab = 'flows';   // 'flows' | 'schema' | 'states' | 'constraints'
 let reqProjects     = [];
 
 // ── localStorage ──────────────────────────────────────────────
@@ -2000,10 +2163,11 @@ function esc(s) {
 }
 
 // ── RM router ─────────────────────────────────────────────────
-function showReqView(view, projId, modIdx) {
+function showReqView(view, projId, modIdx, pageId) {
   rmView = view;
   if (projId  !== undefined) rmCurrentProjId = projId;
   if (modIdx  !== undefined) rmCurrentModIdx = modIdx;
+  if (pageId  !== undefined) rmCurrentPageId = pageId;
   renderRM();
 }
 
@@ -2013,7 +2177,9 @@ function renderRM() {
   if      (rmView === 'project-list')   root.innerHTML = buildProjectList();
   else if (rmView === 'project-detail') root.innerHTML = buildProjectDetail();
   else if (rmView === 'module-editor')  root.innerHTML = buildModuleEditor();
+  else if (rmView === 'page-editor')    root.innerHTML = buildPageEditor();
   bindRMEvents();
+  if (rmView === 'page-editor') bindPageEditorEvents();
 }
 
 // ── Project List ──────────────────────────────────────────────
@@ -2023,7 +2189,6 @@ function buildProjectList() {
       <div class="rm-project-card-name">${esc(p.name)}</div>
       <div class="rm-project-card-desc">${esc(p.description)}</div>
       <div class="rm-project-card-meta">
-        ${p.tech_stack ? `<span class="rm-meta-tag">⚡ ${esc(p.tech_stack)}</span>` : ''}
         <span class="rm-meta-tag">📦 ${(p.modules||[]).length} 个模块</span>
       </div>
       <div class="rm-project-card-actions">
@@ -2036,7 +2201,7 @@ function buildProjectList() {
     <div class="rm-page-header">
       <div>
         <div class="rm-page-title">需求管理</div>
-        <div class="rm-page-sub">结构化记录项目需求，帮助后端开发者快速进行数据库与 API 设计</div>
+        <div class="rm-page-sub">结构化描述产品行为，帮助 AI 自动设计数据库与 API</div>
       </div>
       <div class="rm-header-actions">
         <button class="btn btn-primary" id="btn-new-proj">＋ 新建项目</button>
@@ -2090,7 +2255,7 @@ function buildProjectDetail() {
     </div>
     <div class="rm-project-info-bar">
       <div class="rm-project-info-desc">${esc(proj.description)}</div>
-      ${proj.tech_stack ? `<div class="rm-project-info-stack">⚡ ${esc(proj.tech_stack)}</div>` : ''}
+      ${proj.goals ? `<div style="font-size:.85rem;color:var(--text);margin-top:6px"><span style="color:var(--muted);font-size:.78rem">项目目标：</span>${esc(proj.goals)}</div>` : ''}
     </div>
     <div class="rm-section-header">
       <div>
@@ -2109,6 +2274,10 @@ function buildProjectDetail() {
           <label class="rm-label">模块描述</label>
           <input class="rm-input" id="mod-desc-inp" placeholder="这个模块负责什么" />
         </div>
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">核心业务流</label>
+        <textarea class="rm-textarea" id="mod-flow-inp" placeholder="如：用户提交申请 → 系统分配审核人 → 审核人审核 → 通知用户结果" style="min-height:56px"></textarea>
       </div>
       <div class="rm-form-actions">
         <button class="btn btn-ghost" id="btn-cancel-mod">取消</button>
@@ -2132,6 +2301,36 @@ function buildModuleEditor() {
   const mod  = (proj.modules || [])[rmCurrentModIdx];
   if (!mod)  return buildProjectDetail();
 
+  const pages = mod.pages || [];
+  const level1Pages = pages.filter(pg => pg.level === 1 || !pg.parent_id);
+  let treeRows = '';
+  level1Pages.forEach(pg1 => {
+    treeRows += buildPageTreeRow(pg1, 1);
+    pages.filter(pg => pg.parent_id === pg1.id).forEach(pg2 => { treeRows += buildPageTreeRow(pg2, 2); });
+  });
+  // orphan level-2 pages (parent deleted)
+  pages.filter(pg => pg.parent_id && !level1Pages.find(p1 => p1.id === pg.parent_id))
+       .forEach(pg => { treeRows += buildPageTreeRow(pg, 2); });
+
+  // Flow diagram from page_actions
+  const flowLinks = [];
+  pages.forEach(pg => {
+    ((pg.schema||{}).page_actions||[]).forEach(pa => {
+      if (pa.target_page) flowLinks.push({ from: pg.name, to: pa.target_page, label: pa.label });
+    });
+  });
+  const flowDiagram = flowLinks.length > 0 ? `
+    <div class="flow-card">
+      ${flowLinks.map(lk => `
+        <div class="flow-node">${esc(lk.from)}</div>
+        <div class="flow-arrow">
+          <span class="flow-arrow-line">→</span>
+          <span class="flow-arrow-label">${esc(lk.label)}</span>
+        </div>
+        <div class="flow-node">${esc(lk.to)}</div>
+      `).join('')}
+    </div>` : '';
+
   return `
     <div class="rm-breadcrumb">
       <button class="rm-breadcrumb-link" data-nav="project-list">需求管理</button>
@@ -2140,108 +2339,417 @@ function buildModuleEditor() {
       <span class="rm-breadcrumb-sep">›</span>
       <span>${esc(mod.name)}</span>
     </div>
-    <div class="rm-page-header">
-      <div>
-        <div class="rm-page-title">${esc(mod.name)}</div>
-        ${mod.description ? `<div class="rm-page-sub">${esc(mod.description)}</div>` : ''}
+    <div class="core-flow-bar">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div style="flex:1">
+          <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px">核心业务流</div>
+          <div style="font-size:.92rem;color:var(--text);line-height:1.7">${mod.core_flow ? esc(mod.core_flow) : '<span style="color:var(--muted)">暂未填写核心业务流，点击右侧编辑添加</span>'}</div>
+        </div>
+        <button class="rm-icon-btn" data-edit-mod="1" style="flex-shrink:0">✏️ 编辑模块</button>
       </div>
+    </div>
+
+    <div class="rm-section-header" style="margin-top:28px">
+      <div>
+        <div class="rm-section-title">页面列表</div>
+        <div class="rm-section-sub">每个页面对应用户实际看到的一个界面</div>
+      </div>
+      <button class="btn btn-primary" data-add-page="1">＋ 新建一级页面</button>
+    </div>
+
+    <div class="pg-tree" id="pg-tree">
+      ${treeRows || `
+        <div class="rm-empty" style="padding:40px 24px">
+          <span class="rm-empty-icon" style="font-size:2rem">📱</span>
+          <div class="rm-empty-title">还没有页面</div>
+          <div class="rm-empty-desc">点击「新建一级页面」添加第一个页面</div>
+        </div>`}
+    </div>
+
+    ${flowLinks.length > 0 ? `
+    <div class="rm-section-header" style="margin-top:28px">
+      <div>
+        <div class="rm-section-title">页面流转关系</div>
+        <div class="rm-section-sub">根据页面级操作的「跳转目标」自动生成</div>
+      </div>
+    </div>
+    ${flowDiagram}` : ''}`;
+}
+
+function buildPageTreeRow(pg, level) {
+  const flowCount       = (pg.user_flows||[]).length;
+  const filterCount     = ((pg.schema||{}).filters||[]).length;
+  const stateCount      = (pg.states||[]).length;
+  const constraintCount = (pg.constraints||[]).length;
+  const typeColors = { list:'#58a6ff', detail:'#bc8cff', form:'#3fb950', dashboard:'#f0883e', other:'#8b949e' };
+  const tc = typeColors[pg.type] || typeColors.other;
+  return `
+    <div class="pg-tree-row ${level===2?'pg-level2':''}">
+      <div class="pg-tree-icon">📱</div>
+      <div class="pg-tree-main">
+        <div class="pg-tree-name">${esc(pg.name)}</div>
+        <div class="pg-tree-badges">
+          <span class="pg-type-badge" style="background:${tc}22;color:${tc}">${esc(pg.type||'list')}</span>
+          <span class="pg-level-badge">${level===1?'一级':'二级'}</span>
+          ${flowCount>0       ?`<span class="pg-stat-chip">${flowCount} 流程</span>`:''}
+          ${filterCount>0     ?`<span class="pg-stat-chip">${filterCount} 筛选</span>`:''}
+          ${stateCount>0      ?`<span class="pg-stat-chip">${stateCount} 状态</span>`:''}
+          ${constraintCount>0 ?`<span class="pg-stat-chip">${constraintCount} 约束</span>`:''}
+        </div>
+      </div>
+      <div class="pg-tree-actions">
+        <button class="rm-icon-btn" data-add-subpage="${pg.id}">＋ 子页</button>
+        <button class="rm-icon-btn" data-click-page="${pg.id}">→ 编辑</button>
+        <button class="rm-icon-btn danger" data-del-page="${pg.id}">🗑️</button>
+      </div>
+    </div>`;
+}
+
+// ── Page Editor ───────────────────────────────────────────────
+function buildPageEditor() {
+  const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+  if (!proj) return buildProjectList();
+  const mod  = (proj.modules||[])[rmCurrentModIdx];
+  if (!mod)  return buildProjectDetail();
+  const page = (mod.pages||[]).find(p => p.id === rmCurrentPageId);
+  if (!page) return buildModuleEditor();
+
+  const typeColors = { list:'#58a6ff', detail:'#bc8cff', form:'#3fb950', dashboard:'#f0883e', other:'#8b949e' };
+  const tc = typeColors[page.type] || typeColors.other;
+  const tabs = [
+    { key:'flows',       label:'👣 用户流程' },
+    { key:'schema',      label:'📐 页面结构' },
+    { key:'states',      label:'🔄 状态机' },
+    { key:'constraints', label:'⚖️ 约束规则' },
+  ];
+  let tabContent = '';
+  if      (rmPageEditorTab === 'flows')       tabContent = buildFlowsTab(page);
+  else if (rmPageEditorTab === 'schema')      tabContent = buildSchemaTab(page);
+  else if (rmPageEditorTab === 'states')      tabContent = buildStatesTab(page);
+  else if (rmPageEditorTab === 'constraints') tabContent = buildConstraintsTab(page);
+
+  return `
+    <div class="rm-breadcrumb">
+      <button class="rm-breadcrumb-link" data-nav="project-list">需求管理</button>
+      <span class="rm-breadcrumb-sep">›</span>
+      <button class="rm-breadcrumb-link" data-nav="project-detail">${esc(proj.name)}</button>
+      <span class="rm-breadcrumb-sep">›</span>
+      <button class="rm-breadcrumb-link" data-nav="module-editor">${esc(mod.name)}</button>
+      <span class="rm-breadcrumb-sep">›</span>
+      <span>${esc(page.name)}</span>
+    </div>
+    <div class="pg-info-bar">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <span style="font-size:1.05rem;font-weight:800">${esc(page.name)}</span>
+          <span class="pg-type-badge" style="background:${tc}22;color:${tc}">${esc(page.type||'list')}</span>
+          <span class="pg-level-badge">${page.level===2?'二级':'一级'}</span>
+        </div>
+        <div style="font-size:.85rem;color:var(--muted)">${esc(page.description || '暂无描述')}</div>
+      </div>
+      <button class="rm-icon-btn" data-edit-page-info="1" style="flex-shrink:0">✏️ 编辑基本信息</button>
     </div>
     <div class="rm-tabs">
-      <button class="rm-tab-btn ${rmEditorTab==='entities'?'active':''}" data-tab="entities">🗄️ 数据库实体</button>
-      <button class="rm-tab-btn ${rmEditorTab==='apis'?'active':''}"     data-tab="apis">🔌 API 接口</button>
+      ${tabs.map(t => `
+        <button class="rm-tab-btn ${rmPageEditorTab===t.key?'active':''}" data-ptab="${t.key}">${t.label}</button>
+      `).join('')}
     </div>
-    <div id="rm-tab-content">
-      ${rmEditorTab === 'entities' ? buildEntitiesTab(mod) : buildApisTab(mod)}
+    <div id="rm-page-tab-content">
+      ${tabContent}
     </div>`;
 }
 
-// ── Entities Tab ──────────────────────────────────────────────
-function buildEntitiesTab(mod) {
-  const cards = (mod.entities || []).map((ent, ei) => {
-    const rows = (ent.fields || []).map((f, fi) => `
-      <tr>
-        <td><code>${esc(f.field_name)}</code></td>
-        <td><span class="type-badge">${esc(f.type)}</span></td>
-        <td class="${f.required?'bool-yes':'bool-no'}">${f.required?'是':'否'}</td>
-        <td class="${f.unique  ?'bool-yes':'bool-no'}">${f.unique  ?'是':'否'}</td>
-        <td style="color:var(--muted);font-size:.8rem">${esc(f.notes||'')}</td>
-        <td><button class="rm-icon-btn danger" style="padding:3px 8px" data-del-field="${ei}-${fi}">✕</button></td>
-      </tr>`).join('');
-    return `
-      <div class="rm-entity-card">
-        <div class="rm-entity-header">
-          <div style="flex:1">
-            <div class="rm-entity-name">📋 ${esc(ent.name)}</div>
-            ${ent.description?`<div class="rm-entity-desc">${esc(ent.description)}</div>`:''}
-          </div>
-          <div style="display:flex;gap:6px;flex-shrink:0">
-            <button class="rm-icon-btn" data-add-field="${ei}">＋ 字段</button>
-            <button class="rm-icon-btn danger" data-del-entity="${ei}">🗑️</button>
-          </div>
-        </div>
-        <table class="rm-fields-table">
-          <thead><tr><th>字段名</th><th>类型</th><th>必填</th><th>唯一</th><th>备注</th><th></th></tr></thead>
-          <tbody>${rows||'<tr><td colspan="6" style="padding:14px;color:var(--muted);text-align:center;font-size:.84rem">暂无字段，点击「+ 字段」添加</td></tr>'}</tbody>
-        </table>
-      </div>`;
-  }).join('');
-
+// ── Flows Tab ─────────────────────────────────────────────────
+function buildFlowsTab(page) {
+  const flows = page.user_flows || [];
+  const rows = flows.map((f, i) => `
+    <tr>
+      <td style="text-align:center;color:var(--muted)">${f.step}</td>
+      <td>${esc(f.actor)}</td>
+      <td>${esc(f.action)}</td>
+      <td>${esc(f.response)}</td>
+      <td style="color:var(--muted)">${esc(f.notes||'')}</td>
+      <td><button class="rm-icon-btn danger" style="padding:3px 8px" data-del-flow="${i}">✕</button></td>
+    </tr>`).join('');
   return `
     <div class="rm-section-header">
       <div>
-        <div class="rm-section-title">数据库实体</div>
-        <div class="rm-section-sub">每个实体对应一张数据库表；字段即列定义</div>
+        <div class="rm-section-title">用户操作流程</div>
+        <div class="rm-section-sub">描述用户如何一步步使用该页面，以及系统如何响应</div>
       </div>
-      <button class="btn btn-primary" id="btn-add-entity">＋ 新建实体</button>
     </div>
-    <div class="rm-entity-list">
-      ${cards||`
-        <div class="rm-empty" style="padding:40px 24px">
-          <span class="rm-empty-icon" style="font-size:2rem">🗄️</span>
-          <div class="rm-empty-title">还没有数据实体</div>
-          <div class="rm-empty-desc">点击「新建实体」定义第一张数据库表</div>
-        </div>`}
+    ${flows.length > 0 ? `
+    <table class="rm-fields-table" style="margin-bottom:16px">
+      <thead><tr><th style="width:48px">步骤</th><th>角色</th><th>用户操作</th><th>系统响应</th><th>备注</th><th style="width:40px"></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>` : `<div style="color:var(--muted);font-size:.84rem;padding:16px 0 20px;text-align:center">暂无流程步骤，在下方添加</div>`}
+    <div class="rm-add-module-form" id="add-flow-form">
+      <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">添加步骤</div>
+      <div class="rm-form-row">
+        <div class="rm-field-group">
+          <label class="rm-label">角色</label>
+          <input class="rm-input" id="flow-actor" placeholder="如：用户、管理员、系统" />
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">备注</label>
+          <input class="rm-input" id="flow-notes" placeholder="可选" />
+        </div>
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">用户操作 *</label>
+        <input class="rm-input" id="flow-action" placeholder="如：点击「提交」按钮" />
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">系统响应 *</label>
+        <input class="rm-input" id="flow-response" placeholder="如：系统校验数据，成功后跳转到详情页" />
+      </div>
+      <div class="rm-form-actions">
+        <button class="btn btn-primary" data-add-flow-step="1">＋ 添加步骤</button>
+      </div>
     </div>`;
 }
 
-// ── APIs Tab ──────────────────────────────────────────────────
-function buildApisTab(mod) {
-  const rows = (mod.apis || []).map((api, ai) => `
-    <div class="rm-api-row">
-      <div class="rm-api-main">
-        <div class="rm-api-method-path">
-          <span class="method-badge method-${api.method}">${api.method}</span>
-          <span class="rm-api-path">${esc(api.path)}</span>
-          <span class="auth-badge ${api.auth_required?'auth-yes':'auth-no'}">${api.auth_required?'🔒 需鉴权':'🔓 无需鉴权'}</span>
+// ── Schema Tab ────────────────────────────────────────────────
+function buildSchemaTab(page) {
+  const schema       = page.schema || {};
+  const filters      = schema.filters       || [];
+  const displayFields = schema.display_fields || [];
+  const pageActions  = schema.page_actions  || [];
+  const rowActions   = schema.row_actions   || [];
+
+  const filterRows = filters.map((f, i) => `
+    <tr>
+      <td>${esc(f.label)}</td>
+      <td><span class="type-badge">${esc(f.type)}</span></td>
+      <td style="color:var(--muted);font-size:.82rem">${esc(f.options||'')}</td>
+      <td class="${f.required?'bool-yes':'bool-no'}">${f.required?'是':'否'}</td>
+      <td style="color:var(--muted)">${esc(f.default_value||'')}</td>
+      <td><button class="rm-icon-btn danger" style="padding:3px 8px" data-del-filter="${i}">✕</button></td>
+    </tr>`).join('');
+
+  const dfRows = displayFields.map((df, i) => `
+    <tr>
+      <td>${esc(df.label)}</td>
+      <td><span class="type-badge">${esc(df.type)}</span></td>
+      <td class="${df.sortable?'bool-yes':'bool-no'}">${df.sortable?'是':'否'}</td>
+      <td style="color:var(--muted)">${esc(df.notes||'')}</td>
+      <td><button class="rm-icon-btn danger" style="padding:3px 8px" data-del-display-field="${i}">✕</button></td>
+    </tr>`).join('');
+
+  const paRows = pageActions.map((pa, i) => `
+    <tr>
+      <td>${esc(pa.label)}</td>
+      <td><span class="action-style-badge style-${pa.style||'ghost'}">${esc(pa.style||'')}</span></td>
+      <td style="color:var(--muted)">${esc(pa.target_page||'')}</td>
+      <td style="color:var(--muted)">${esc(pa.notes||'')}</td>
+      <td><button class="rm-icon-btn danger" style="padding:3px 8px" data-del-page-action="${i}">✕</button></td>
+    </tr>`).join('');
+
+  const raRows = rowActions.map((ra, i) => `
+    <tr>
+      <td>${esc(ra.label)}</td>
+      <td><span class="action-style-badge style-${ra.style||'ghost'}">${esc(ra.style||'')}</span></td>
+      <td style="color:var(--muted);font-size:.82rem">${esc(ra.effect||'')}</td>
+      <td class="${ra.confirm?'bool-yes':'bool-no'}">${ra.confirm?'是':'否'}</td>
+      <td style="color:var(--muted)">${esc(ra.notes||'')}</td>
+      <td><button class="rm-icon-btn danger" style="padding:3px 8px" data-del-row-action="${i}">✕</button></td>
+    </tr>`).join('');
+
+  return `
+    <!-- ■ 筛选条件 -->
+    <div class="schema-section">
+      <div class="schema-section-header">
+        <span>■ 筛选条件</span>
+        <button class="rm-icon-btn" data-toggle-form="filter-form">＋ 添加筛选项</button>
+      </div>
+      ${filters.length > 0 ? `
+      <table class="rm-fields-table">
+        <thead><tr><th>标签</th><th>控件类型</th><th>选项值</th><th>必须</th><th>默认值</th><th></th></tr></thead>
+        <tbody>${filterRows}</tbody>
+      </table>` : `<div class="rm-empty" style="padding:18px;text-align:center;color:var(--muted);font-size:.84rem">暂无筛选项</div>`}
+      <div class="rm-add-module-form hidden" id="filter-form">
+        <div class="rm-form-row">
+          <div class="rm-field-group"><label class="rm-label">标签 *</label><input class="rm-input" id="f-label" placeholder="如：工单状态" /></div>
+          <div class="rm-field-group"><label class="rm-label">控件类型</label>
+            <select class="rm-select" id="f-type">
+              <option value="select">select（下拉）</option>
+              <option value="input">input（文本）</option>
+              <option value="date">date（日期）</option>
+              <option value="daterange">daterange（日期范围）</option>
+              <option value="checkbox">checkbox（多选）</option>
+              <option value="radio">radio（单选）</option>
+            </select>
+          </div>
         </div>
-        <div class="rm-api-summary">${esc(api.summary)}</div>
-        ${api.request_body  ? `<div class="rm-api-detail-row"><strong>入参：</strong>${esc(api.request_body)}</div>`  : ''}
-        ${api.response_desc ? `<div class="rm-api-detail-row"><strong>返回：</strong>${esc(api.response_desc)}</div>` : ''}
+        <div class="rm-form-row">
+          <div class="rm-field-group"><label class="rm-label">选项值 <span style="font-weight:400;text-transform:none">(用 | 分隔)</span></label><input class="rm-input" id="f-options" placeholder="待处理|处理中|已完成" /></div>
+          <div class="rm-field-group"><label class="rm-label">默认值</label><input class="rm-input" id="f-default" /></div>
+        </div>
+        <div class="rm-checkbox-row"><input type="checkbox" id="f-required" /><label for="f-required">必选</label></div>
+        <div class="rm-form-actions"><button class="btn btn-primary" data-add-filter="1">添加</button></div>
       </div>
-      <div style="flex-shrink:0">
-        <button class="rm-icon-btn danger" data-del-api="${ai}">🗑️</button>
+    </div>
+
+    <!-- ■ 展示内容 -->
+    <div class="schema-section">
+      <div class="schema-section-header">
+        <span>■ 展示内容</span>
+        <button class="rm-icon-btn" data-toggle-form="df-form">＋ 添加字段</button>
       </div>
+      ${displayFields.length > 0 ? `
+      <table class="rm-fields-table">
+        <thead><tr><th>字段标签</th><th>数据类型</th><th>可排序</th><th>备注</th><th></th></tr></thead>
+        <tbody>${dfRows}</tbody>
+      </table>` : `<div class="rm-empty" style="padding:18px;text-align:center;color:var(--muted);font-size:.84rem">暂无展示字段</div>`}
+      <div class="rm-add-module-form hidden" id="df-form">
+        <div class="rm-form-row">
+          <div class="rm-field-group"><label class="rm-label">字段标签 *</label><input class="rm-input" id="df-label" placeholder="如：工单编号" /></div>
+          <div class="rm-field-group"><label class="rm-label">数据类型</label>
+            <select class="rm-select" id="df-type">
+              <option value="text">text（文本）</option>
+              <option value="number">number（数字）</option>
+              <option value="status">status（状态标签）</option>
+              <option value="datetime">datetime（时间）</option>
+              <option value="image">image（图片）</option>
+              <option value="link">link（链接）</option>
+              <option value="badge">badge（徽章）</option>
+            </select>
+          </div>
+        </div>
+        <div class="rm-form-row">
+          <div class="rm-checkbox-row"><input type="checkbox" id="df-sortable" /><label for="df-sortable">可排序</label></div>
+          <div class="rm-field-group"><label class="rm-label">备注</label><input class="rm-input" id="df-notes" /></div>
+        </div>
+        <div class="rm-form-actions"><button class="btn btn-primary" data-add-display-field="1">添加</button></div>
+      </div>
+    </div>
+
+    <!-- ■ 页面级操作 -->
+    <div class="schema-section">
+      <div class="schema-section-header">
+        <span>■ 页面级操作 <span style="font-size:.78rem;color:var(--muted);font-weight:400">（页面整体按钮，如「新建」「导出」）</span></span>
+        <button class="rm-icon-btn" data-toggle-form="pa-form">＋ 添加</button>
+      </div>
+      ${pageActions.length > 0 ? `
+      <table class="rm-fields-table">
+        <thead><tr><th>按钮文字</th><th>样式</th><th>跳转目标页面</th><th>备注</th><th></th></tr></thead>
+        <tbody>${paRows}</tbody>
+      </table>` : `<div class="rm-empty" style="padding:18px;text-align:center;color:var(--muted);font-size:.84rem">暂无页面级操作</div>`}
+      <div class="rm-add-module-form hidden" id="pa-form">
+        <div class="rm-form-row">
+          <div class="rm-field-group"><label class="rm-label">按钮文字 *</label><input class="rm-input" id="pa-label" placeholder="如：新建工单" /></div>
+          <div class="rm-field-group"><label class="rm-label">样式</label>
+            <select class="rm-select" id="pa-style">
+              <option value="primary">primary（主要）</option>
+              <option value="ghost">ghost（次要）</option>
+              <option value="danger">danger（危险）</option>
+              <option value="link">link（链接）</option>
+            </select>
+          </div>
+        </div>
+        <div class="rm-form-row">
+          <div class="rm-field-group"><label class="rm-label">跳转目标页面</label><input class="rm-input" id="pa-target" placeholder="如：新建工单页" /></div>
+          <div class="rm-field-group"><label class="rm-label">备注</label><input class="rm-input" id="pa-notes" /></div>
+        </div>
+        <div class="rm-form-actions"><button class="btn btn-primary" data-add-page-action="1">添加</button></div>
+      </div>
+    </div>
+
+    <!-- ■ 行级操作 -->
+    <div class="schema-section">
+      <div class="schema-section-header">
+        <span>■ 行级操作 <span style="font-size:.78rem;color:var(--muted);font-weight:400">（列表每行的操作，如「编辑」「删除」「查看」）</span></span>
+        <button class="rm-icon-btn" data-toggle-form="ra-form">＋ 添加</button>
+      </div>
+      ${rowActions.length > 0 ? `
+      <table class="rm-fields-table">
+        <thead><tr><th>操作名称</th><th>样式</th><th>操作效果</th><th>需二次确认</th><th>备注</th><th></th></tr></thead>
+        <tbody>${raRows}</tbody>
+      </table>` : `<div class="rm-empty" style="padding:18px;text-align:center;color:var(--muted);font-size:.84rem">暂无行级操作</div>`}
+      <div class="rm-add-module-form hidden" id="ra-form">
+        <div class="rm-form-row">
+          <div class="rm-field-group"><label class="rm-label">操作名称 *</label><input class="rm-input" id="ra-label" placeholder="如：撤销工单" /></div>
+          <div class="rm-field-group"><label class="rm-label">样式</label>
+            <select class="rm-select" id="ra-style">
+              <option value="link">link（链接）</option>
+              <option value="primary">primary（主要）</option>
+              <option value="ghost">ghost（次要）</option>
+              <option value="danger">danger（危险）</option>
+            </select>
+          </div>
+        </div>
+        <div class="rm-field-group"><label class="rm-label">操作效果 *</label><input class="rm-input" id="ra-effect" placeholder="如：刷新后行数据工单状态变更为「已关闭」并标记撤销" /></div>
+        <div class="rm-form-row">
+          <div class="rm-checkbox-row"><input type="checkbox" id="ra-confirm" /><label for="ra-confirm">需二次确认</label></div>
+          <div class="rm-field-group"><label class="rm-label">备注</label><input class="rm-input" id="ra-notes" placeholder="如：仅「待处理」状态可操作" /></div>
+        </div>
+        <div class="rm-form-actions"><button class="btn btn-primary" data-add-row-action="1">添加</button></div>
+      </div>
+    </div>`;
+}
+
+// ── States Tab ────────────────────────────────────────────────
+function buildStatesTab(page) {
+  const states = page.states || [];
+  const rows = states.map((s, i) => `
+    <tr>
+      <td style="font-weight:600">${esc(s.name)}</td>
+      <td style="color:var(--muted);font-size:.84rem">${esc(s.condition)}</td>
+      <td style="color:var(--muted);font-size:.84rem">${esc(s.ui_behavior)}</td>
+      <td><button class="rm-icon-btn danger" style="padding:3px 8px" data-del-state="${i}">✕</button></td>
+    </tr>`).join('');
+  return `
+    <div class="rm-section-header">
+      <div>
+        <div class="rm-section-title">页面状态</div>
+        <div class="rm-section-sub">描述页面在不同情境下的展示形态（加载中、空状态、错误等）</div>
+      </div>
+    </div>
+    ${states.length > 0 ? `
+    <table class="rm-fields-table" style="margin-bottom:16px">
+      <thead><tr><th>状态名</th><th>触发条件</th><th>界面表现</th><th style="width:40px"></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>` : `<div style="color:var(--muted);font-size:.84rem;padding:16px 0 20px;text-align:center">暂无状态，在下方添加</div>`}
+    <div class="rm-add-module-form" id="add-state-form">
+      <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">添加状态</div>
+      <div class="rm-form-row">
+        <div class="rm-field-group"><label class="rm-label">状态名 *</label><input class="rm-input" id="state-name" placeholder="如：加载中、空状态、错误" /></div>
+        <div class="rm-field-group"><label class="rm-label">触发条件 *</label><input class="rm-input" id="state-condition" placeholder="如：列表数据请求中" /></div>
+      </div>
+      <div class="rm-field-group"><label class="rm-label">界面表现 *</label><input class="rm-input" id="state-behavior" placeholder="如：显示骨架屏" /></div>
+      <div class="rm-form-actions"><button class="btn btn-primary" data-add-state="1">＋ 添加状态</button></div>
+    </div>`;
+}
+
+// ── Constraints Tab ───────────────────────────────────────────
+function buildConstraintsTab(page) {
+  const constraints = page.constraints || [];
+  const items = constraints.map((c, i) => `
+    <div class="constraint-row">
+      <span class="constraint-bullet">•</span>
+      <span class="constraint-text">${esc(c.text)}</span>
+      <button class="rm-icon-btn danger" style="padding:3px 8px;margin-left:auto" data-del-constraint="${i}">✕</button>
     </div>`).join('');
-
   return `
     <div class="rm-section-header">
       <div>
-        <div class="rm-section-title">API 接口设计</div>
-        <div class="rm-section-sub">每条记录对应后端的一个路由</div>
+        <div class="rm-section-title">约束规则</div>
+        <div class="rm-section-sub">权限约束、业务规则、数据限制等</div>
       </div>
-      <button class="btn btn-primary" id="btn-add-api">＋ 新增接口</button>
     </div>
-    <div class="rm-api-list">
-      ${rows||`
-        <div class="rm-empty" style="padding:40px 24px">
-          <span class="rm-empty-icon" style="font-size:2rem">🔌</span>
-          <div class="rm-empty-title">还没有接口</div>
-          <div class="rm-empty-desc">点击「新增接口」定义第一个 API</div>
-        </div>`}
+    ${constraints.length > 0 ? `<div class="constraint-list">${items}</div>` : `<div style="color:var(--muted);font-size:.84rem;padding:16px 0 20px;text-align:center">暂无约束规则，在下方添加</div>`}
+    <div class="rm-add-module-form" style="margin-top:16px" id="add-constraint-form">
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <div class="rm-field-group" style="flex:1">
+          <label class="rm-label">添加规则</label>
+          <input class="rm-input" id="constraint-text" placeholder="如：员工只能查看自己提交的工单" />
+        </div>
+        <button class="btn btn-primary" style="flex-shrink:0" data-add-constraint="1">添加</button>
+      </div>
     </div>`;
 }
 
-// ── Bind events ───────────────────────────────────────────────
+// ── Bind RM Events ────────────────────────────────────────────
 function bindRMEvents() {
   const root = document.getElementById('rm-root');
   if (!root) return;
@@ -2253,6 +2761,7 @@ function bindRMEvents() {
       const v = el.dataset.nav;
       if (v === 'project-list')   showReqView('project-list');
       if (v === 'project-detail') showReqView('project-detail');
+      if (v === 'module-editor')  showReqView('module-editor');
     });
   });
 
@@ -2306,7 +2815,7 @@ function bindRMEvents() {
     });
   });
 
-  // Show inline add-module form
+  // Show/hide inline add-module form
   document.getElementById('btn-show-add-mod')?.addEventListener('click', () => {
     document.getElementById('add-mod-form').classList.remove('hidden');
     document.getElementById('mod-name-inp').focus();
@@ -2319,26 +2828,59 @@ function bindRMEvents() {
     if (!name) { toast('请输入模块名称', 'error'); return; }
     const proj = reqProjects.find(p => p.id === rmCurrentProjId);
     if (!proj.modules) proj.modules = [];
-    proj.modules.push({ name, description: document.getElementById('mod-desc-inp').value.trim(), entities: [], apis: [] });
+    proj.modules.push({
+      id: genId(), name,
+      description: document.getElementById('mod-desc-inp').value.trim(),
+      core_flow:   document.getElementById('mod-flow-inp').value.trim(),
+      pages: []
+    });
     saveProjects([...reqProjects]);
     renderRM();
     toast('模块已添加', 'success');
   });
 
-  // Editor tabs
-  root.querySelectorAll('[data-tab]').forEach(el => {
-    el.addEventListener('click', () => {
-      rmEditorTab = el.dataset.tab;
-      root.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === rmEditorTab));
-      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
-      const mod  = (proj?.modules||[])[rmCurrentModIdx];
-      document.getElementById('rm-tab-content').innerHTML =
-        rmEditorTab === 'entities' ? buildEntitiesTab(mod) : buildApisTab(mod);
-      bindTabEvents();
+  // Edit module
+  root.querySelectorAll('[data-edit-mod]').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); openModuleModal(); });
+  });
+
+  // New page (level 1)
+  root.querySelectorAll('[data-add-page]').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); openPageModal(null, null); });
+  });
+
+  // New sub-page (level 2 with preset parent)
+  root.querySelectorAll('[data-add-subpage]').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); openPageModal(null, el.dataset.addSubpage); });
+  });
+
+  // Click page → page editor
+  root.querySelectorAll('[data-click-page]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      rmPageEditorTab = 'flows';
+      showReqView('page-editor', rmCurrentProjId, rmCurrentModIdx, el.dataset.clickPage);
     });
   });
 
-  bindTabEvents();
+  // Delete page (and its children)
+  root.querySelectorAll('[data-del-page]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!confirm('确认删除该页面？其下的子页面也会一并删除。')) return;
+      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+      const mod  = proj.modules[rmCurrentModIdx];
+      mod.pages = (mod.pages||[]).filter(pg => pg.id !== el.dataset.delPage && pg.parent_id !== el.dataset.delPage);
+      saveProjects([...reqProjects]);
+      renderRM();
+      toast('页面已删除', 'success');
+    });
+  });
+
+  // Edit page basic info (inside page editor)
+  root.querySelectorAll('[data-edit-page-info]').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); openPageModal(rmCurrentPageId, null); });
+  });
 
   // Export
   document.getElementById('btn-export-md')?.addEventListener('click', () => {
@@ -2347,58 +2889,214 @@ function bindRMEvents() {
   });
 }
 
-function bindTabEvents() {
+// ── Bind Page Editor Events ───────────────────────────────────
+function bindPageEditorEvents() {
   const root = document.getElementById('rm-root');
   if (!root) return;
 
-  // Add entity
-  document.getElementById('btn-add-entity')?.addEventListener('click', () => openEntityModal());
+  const getPage = () => {
+    const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+    const mod  = (proj?.modules||[])[rmCurrentModIdx];
+    return (mod?.pages||[]).find(p => p.id === rmCurrentPageId);
+  };
+  const refreshTab = (page) => {
+    const content = document.getElementById('rm-page-tab-content');
+    if (!content || !page) return;
+    if      (rmPageEditorTab==='flows')       content.innerHTML = buildFlowsTab(page);
+    else if (rmPageEditorTab==='schema')      content.innerHTML = buildSchemaTab(page);
+    else if (rmPageEditorTab==='states')      content.innerHTML = buildStatesTab(page);
+    else if (rmPageEditorTab==='constraints') content.innerHTML = buildConstraintsTab(page);
+    bindPageEditorEvents();
+  };
 
-  // Delete entity
-  root.querySelectorAll('[data-del-entity]').forEach(el => {
-    el.addEventListener('click', e => {
-      e.stopPropagation();
-      if (!confirm('确认删除该实体？')) return;
-      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
-      proj.modules[rmCurrentModIdx].entities.splice(+el.dataset.delEntity, 1);
-      saveProjects([...reqProjects]);
-      renderRM();
-      toast('实体已删除', 'success');
+  // Tab switching
+  root.querySelectorAll('[data-ptab]').forEach(el => {
+    el.addEventListener('click', () => {
+      rmPageEditorTab = el.dataset.ptab;
+      root.querySelectorAll('[data-ptab]').forEach(b => b.classList.toggle('active', b.dataset.ptab === rmPageEditorTab));
+      refreshTab(getPage());
     });
   });
 
-  // Add field
-  root.querySelectorAll('[data-add-field]').forEach(el => {
-    el.addEventListener('click', e => { e.stopPropagation(); openFieldModal(+el.dataset.addField); });
-  });
-
-  // Delete field
-  root.querySelectorAll('[data-del-field]').forEach(el => {
+  // Toggle inline forms
+  root.querySelectorAll('[data-toggle-form]').forEach(el => {
     el.addEventListener('click', e => {
       e.stopPropagation();
-      if (!confirm('确认删除该字段？')) return;
-      const [ei, fi] = el.dataset.delField.split('-').map(Number);
-      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
-      proj.modules[rmCurrentModIdx].entities[ei].fields.splice(fi, 1);
-      saveProjects([...reqProjects]);
-      renderRM();
-      toast('字段已删除', 'success');
+      const formEl = document.getElementById(el.dataset.toggleForm);
+      if (formEl) formEl.classList.toggle('hidden');
     });
   });
 
-  // Add API
-  document.getElementById('btn-add-api')?.addEventListener('click', () => openApiModal());
-
-  // Delete API
-  root.querySelectorAll('[data-del-api]').forEach(el => {
+  // ── User flows ──
+  root.querySelector('[data-add-flow-step]')?.addEventListener('click', () => {
+    const actor    = document.getElementById('flow-actor')?.value.trim();
+    const action   = document.getElementById('flow-action')?.value.trim();
+    const response = document.getElementById('flow-response')?.value.trim();
+    const notes    = document.getElementById('flow-notes')?.value.trim();
+    if (!action || !response) { toast('请填写用户操作和系统响应', 'error'); return; }
+    const page = getPage();
+    if (!page.user_flows) page.user_flows = [];
+    page.user_flows.push({ id: genId(), step: page.user_flows.length+1, actor: actor||'用户', action, response, notes: notes||'' });
+    saveProjects([...reqProjects]);
+    refreshTab(page);
+  });
+  root.querySelectorAll('[data-del-flow]').forEach(el => {
     el.addEventListener('click', e => {
       e.stopPropagation();
-      if (!confirm('确认删除该接口？')) return;
-      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
-      proj.modules[rmCurrentModIdx].apis.splice(+el.dataset.delApi, 1);
+      const page = getPage();
+      page.user_flows.splice(+el.dataset.delFlow, 1);
+      page.user_flows.forEach((f, i) => f.step = i+1);
       saveProjects([...reqProjects]);
-      renderRM();
-      toast('接口已删除', 'success');
+      refreshTab(page);
+    });
+  });
+
+  // ── Filters ──
+  root.querySelector('[data-add-filter]')?.addEventListener('click', () => {
+    const label = document.getElementById('f-label')?.value.trim();
+    if (!label) { toast('请填写标签', 'error'); return; }
+    const page = getPage();
+    if (!page.schema) page.schema = {};
+    if (!page.schema.filters) page.schema.filters = [];
+    page.schema.filters.push({
+      id: genId(), label,
+      type:          document.getElementById('f-type')?.value || 'select',
+      options:       document.getElementById('f-options')?.value.trim() || '',
+      required:      document.getElementById('f-required')?.checked || false,
+      default_value: document.getElementById('f-default')?.value.trim() || ''
+    });
+    saveProjects([...reqProjects]);
+    refreshTab(page);
+  });
+  root.querySelectorAll('[data-del-filter]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const page = getPage();
+      page.schema.filters.splice(+el.dataset.delFilter, 1);
+      saveProjects([...reqProjects]);
+      refreshTab(page);
+    });
+  });
+
+  // ── Display fields ──
+  root.querySelector('[data-add-display-field]')?.addEventListener('click', () => {
+    const label = document.getElementById('df-label')?.value.trim();
+    if (!label) { toast('请填写字段标签', 'error'); return; }
+    const page = getPage();
+    if (!page.schema) page.schema = {};
+    if (!page.schema.display_fields) page.schema.display_fields = [];
+    page.schema.display_fields.push({
+      id: genId(), label,
+      type:     document.getElementById('df-type')?.value || 'text',
+      sortable: document.getElementById('df-sortable')?.checked || false,
+      notes:    document.getElementById('df-notes')?.value.trim() || ''
+    });
+    saveProjects([...reqProjects]);
+    refreshTab(page);
+  });
+  root.querySelectorAll('[data-del-display-field]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const page = getPage();
+      page.schema.display_fields.splice(+el.dataset.delDisplayField, 1);
+      saveProjects([...reqProjects]);
+      refreshTab(page);
+    });
+  });
+
+  // ── Page actions ──
+  root.querySelector('[data-add-page-action]')?.addEventListener('click', () => {
+    const label = document.getElementById('pa-label')?.value.trim();
+    if (!label) { toast('请填写按钮文字', 'error'); return; }
+    const page = getPage();
+    if (!page.schema) page.schema = {};
+    if (!page.schema.page_actions) page.schema.page_actions = [];
+    page.schema.page_actions.push({
+      id: genId(), label,
+      style:       document.getElementById('pa-style')?.value || 'primary',
+      target_page: document.getElementById('pa-target')?.value.trim() || '',
+      notes:       document.getElementById('pa-notes')?.value.trim() || ''
+    });
+    saveProjects([...reqProjects]);
+    refreshTab(page);
+  });
+  root.querySelectorAll('[data-del-page-action]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const page = getPage();
+      page.schema.page_actions.splice(+el.dataset.delPageAction, 1);
+      saveProjects([...reqProjects]);
+      refreshTab(page);
+    });
+  });
+
+  // ── Row actions ──
+  root.querySelector('[data-add-row-action]')?.addEventListener('click', () => {
+    const label  = document.getElementById('ra-label')?.value.trim();
+    const effect = document.getElementById('ra-effect')?.value.trim();
+    if (!label || !effect) { toast('请填写操作名称和操作效果', 'error'); return; }
+    const page = getPage();
+    if (!page.schema) page.schema = {};
+    if (!page.schema.row_actions) page.schema.row_actions = [];
+    page.schema.row_actions.push({
+      id: genId(), label,
+      style:   document.getElementById('ra-style')?.value || 'link',
+      effect,
+      confirm: document.getElementById('ra-confirm')?.checked || false,
+      notes:   document.getElementById('ra-notes')?.value.trim() || ''
+    });
+    saveProjects([...reqProjects]);
+    refreshTab(page);
+  });
+  root.querySelectorAll('[data-del-row-action]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const page = getPage();
+      page.schema.row_actions.splice(+el.dataset.delRowAction, 1);
+      saveProjects([...reqProjects]);
+      refreshTab(page);
+    });
+  });
+
+  // ── States ──
+  root.querySelector('[data-add-state]')?.addEventListener('click', () => {
+    const name      = document.getElementById('state-name')?.value.trim();
+    const condition = document.getElementById('state-condition')?.value.trim();
+    const behavior  = document.getElementById('state-behavior')?.value.trim();
+    if (!name || !condition || !behavior) { toast('请填写完整状态信息', 'error'); return; }
+    const page = getPage();
+    if (!page.states) page.states = [];
+    page.states.push({ id: genId(), name, condition, ui_behavior: behavior });
+    saveProjects([...reqProjects]);
+    refreshTab(page);
+  });
+  root.querySelectorAll('[data-del-state]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const page = getPage();
+      page.states.splice(+el.dataset.delState, 1);
+      saveProjects([...reqProjects]);
+      refreshTab(page);
+    });
+  });
+
+  // ── Constraints ──
+  root.querySelector('[data-add-constraint]')?.addEventListener('click', () => {
+    const text = document.getElementById('constraint-text')?.value.trim();
+    if (!text) { toast('请填写约束规则', 'error'); return; }
+    const page = getPage();
+    if (!page.constraints) page.constraints = [];
+    page.constraints.push({ id: genId(), text });
+    saveProjects([...reqProjects]);
+    refreshTab(page);
+  });
+  root.querySelectorAll('[data-del-constraint]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const page = getPage();
+      page.constraints.splice(+el.dataset.delConstraint, 1);
+      saveProjects([...reqProjects]);
+      refreshTab(page);
     });
   });
 }
@@ -2433,8 +3131,8 @@ function openProjectModal(projId) {
         <textarea class="rm-textarea" id="proj-desc" placeholder="一句话说明项目目标和核心用途">${esc(proj?.description||'')}</textarea>
       </div>
       <div class="rm-field-group">
-        <label class="rm-label">技术栈 <span style="font-weight:400;text-transform:none;letter-spacing:0">(选填)</span></label>
-        <input class="rm-input" id="proj-stack" placeholder="如：FastAPI + PostgreSQL + Vue3" value="${esc(proj?.tech_stack||'')}" />
+        <label class="rm-label">项目目标 <span style="font-weight:400;text-transform:none;letter-spacing:0">(选填)</span></label>
+        <textarea class="rm-textarea" id="proj-goals" placeholder="如：让员工能在5分钟内完成工单提交；IT部门响应时间缩短50%">${esc(proj?.goals||'')}</textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -2445,15 +3143,15 @@ function openProjectModal(projId) {
   document.getElementById('btn-save-proj').addEventListener('click', () => {
     const name  = document.getElementById('proj-name').value.trim();
     const desc  = document.getElementById('proj-desc').value.trim();
-    const stack = document.getElementById('proj-stack').value.trim();
+    const goals = document.getElementById('proj-goals').value.trim();
     if (!name) { toast('请填写项目名称', 'error'); return; }
     if (!desc) { toast('请填写项目描述', 'error'); return; }
     if (proj) {
-      proj.name = name; proj.description = desc; proj.tech_stack = stack;
+      proj.name = name; proj.description = desc; proj.goals = goals;
       saveProjects([...reqProjects]);
       toast('项目已更新', 'success');
     } else {
-      const p = { id: genId(), name, description: desc, tech_stack: stack, created_at: new Date().toISOString(), modules: [] };
+      const p = { id: genId(), name, description: desc, goals, created_at: new Date().toISOString(), modules: [] };
       saveProjects([...reqProjects, p]);
       rmCurrentProjId = p.id;
       toast('项目已创建', 'success');
@@ -2463,214 +3161,234 @@ function openProjectModal(projId) {
   });
 }
 
-// ── Entity Modal ──────────────────────────────────────────────
-function openEntityModal() {
+// ── Module Modal ──────────────────────────────────────────────
+function openModuleModal() {
+  const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+  const mod  = (proj?.modules||[])[rmCurrentModIdx];
+  if (!mod) return;
   openModal(`
     <div class="modal-header">
-      <div class="modal-title">新建数据实体</div>
+      <div class="modal-title">编辑模块</div>
       <button class="modal-close" data-modal-close>✕</button>
     </div>
     <div class="modal-body">
       <div class="rm-field-group">
-        <label class="rm-label">实体名称 * <span style="font-weight:400;text-transform:none;letter-spacing:0">(对应数据库表名)</span></label>
-        <input class="rm-input" id="ent-name" placeholder="如：User、Order、Product" />
+        <label class="rm-label">模块名称 *</label>
+        <input class="rm-input" id="mod-edit-name" value="${esc(mod.name||'')}" placeholder="如：工单管理" />
       </div>
       <div class="rm-field-group">
-        <label class="rm-label">描述</label>
-        <input class="rm-input" id="ent-desc" placeholder="这张表存储什么数据" />
+        <label class="rm-label">模块描述</label>
+        <textarea class="rm-textarea" id="mod-edit-desc" placeholder="这个模块负责什么">${esc(mod.description||'')}</textarea>
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">核心业务流</label>
+        <textarea class="rm-textarea" id="mod-edit-flow" style="min-height:80px" placeholder="如：用户发现问题 → 提交工单 → 系统自动分配处理人 → 处理人处理 → 用户确认 → 关闭">${esc(mod.core_flow||'')}</textarea>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" data-modal-close>取消</button>
-      <button class="btn btn-primary" id="btn-save-ent">创建实体</button>
+      <button class="btn btn-primary" id="btn-save-mod-edit">保存</button>
     </div>`);
 
-  document.getElementById('btn-save-ent').addEventListener('click', () => {
-    const name = document.getElementById('ent-name').value.trim();
-    if (!name) { toast('请填写实体名称', 'error'); return; }
-    const proj = reqProjects.find(p => p.id === rmCurrentProjId);
-    const mod  = proj.modules[rmCurrentModIdx];
-    if (!mod.entities) mod.entities = [];
-    mod.entities.push({ name, description: document.getElementById('ent-desc').value.trim(), fields: [] });
+  document.getElementById('btn-save-mod-edit').addEventListener('click', () => {
+    const name = document.getElementById('mod-edit-name').value.trim();
+    if (!name) { toast('请填写模块名称', 'error'); return; }
+    mod.name        = name;
+    mod.description = document.getElementById('mod-edit-desc').value.trim();
+    mod.core_flow   = document.getElementById('mod-edit-flow').value.trim();
     saveProjects([...reqProjects]);
     closeModal();
     renderRM();
-    toast('实体已创建', 'success');
+    toast('模块已更新', 'success');
   });
 }
 
-// ── Field Modal ───────────────────────────────────────────────
-function openFieldModal(entityIdx) {
+// ── Page Modal ────────────────────────────────────────────────
+function openPageModal(pageId, defaultParentId) {
+  const proj   = reqProjects.find(p => p.id === rmCurrentProjId);
+  const mod    = (proj?.modules||[])[rmCurrentModIdx];
+  if (!mod) return;
+  const page   = pageId ? (mod.pages||[]).find(pg => pg.id === pageId) : null;
+  const allPages     = mod.pages || [];
+  const level1Pages  = allPages.filter(pg => pg.level === 1 || !pg.parent_id);
+  const parentOptions = level1Pages.map(pg1 =>
+    `<option value="${pg1.id}" ${(page?.parent_id===pg1.id || defaultParentId===pg1.id) ? 'selected' : ''}>${esc(pg1.name)}</option>`
+  ).join('');
+
+  const isEdit = !!page;
+  const lvl    = page?.level || (defaultParentId ? 2 : 1);
   openModal(`
     <div class="modal-header">
-      <div class="modal-title">添加字段</div>
+      <div class="modal-title">${isEdit ? '编辑页面基本信息' : '新建页面'}</div>
       <button class="modal-close" data-modal-close>✕</button>
     </div>
     <div class="modal-body">
+      <div class="rm-field-group">
+        <label class="rm-label">页面名称 *</label>
+        <input class="rm-input" id="page-name" value="${esc(page?.name||'')}" placeholder="如：工单列表页、新建工单页" />
+      </div>
       <div class="rm-form-row">
         <div class="rm-field-group">
-          <label class="rm-label">字段名 *</label>
-          <input class="rm-input" id="fld-name" placeholder="如：email, created_at" />
+          <label class="rm-label">页面类型</label>
+          <select class="rm-select" id="page-type">
+            <option value="list"      ${(page?.type||'list')==='list'     ?'selected':''}>list（列表）</option>
+            <option value="detail"    ${page?.type==='detail'             ?'selected':''}>detail（详情）</option>
+            <option value="form"      ${page?.type==='form'               ?'selected':''}>form（表单）</option>
+            <option value="dashboard" ${page?.type==='dashboard'          ?'selected':''}>dashboard（概览）</option>
+            <option value="other"     ${page?.type==='other'              ?'selected':''}>other（其他）</option>
+          </select>
         </div>
         <div class="rm-field-group">
-          <label class="rm-label">类型 *</label>
-          <select class="rm-select" id="fld-type">
-            <option value="string">string（文本）</option>
-            <option value="number">number（数字）</option>
-            <option value="boolean">boolean（是/否）</option>
-            <option value="datetime">datetime（时间）</option>
-            <option value="text">text（长文本）</option>
-            <option value="enum">enum（枚举）</option>
-            <option value="fk">fk（外键引用）</option>
+          <label class="rm-label">页面层级</label>
+          <select class="rm-select" id="page-level">
+            <option value="1" ${lvl===1?'selected':''}>一级页面</option>
+            <option value="2" ${lvl===2?'selected':''}>二级页面（子页面）</option>
           </select>
         </div>
       </div>
-      <div class="rm-form-row">
-        <div class="rm-checkbox-row">
-          <input type="checkbox" id="fld-required" checked />
-          <label for="fld-required">必填</label>
-        </div>
-        <div class="rm-checkbox-row">
-          <input type="checkbox" id="fld-unique" />
-          <label for="fld-unique">唯一约束</label>
-        </div>
+      <div class="rm-field-group" id="parent-group" style="${lvl===2?'':'display:none'}">
+        <label class="rm-label">父页面</label>
+        <select class="rm-select" id="page-parent">
+          <option value="">— 请选择父页面 —</option>
+          ${parentOptions}
+        </select>
       </div>
       <div class="rm-field-group">
-        <label class="rm-label">备注说明</label>
-        <input class="rm-input" id="fld-notes" placeholder="如：外键关联 users.id；企业邮箱格式；枚举值 admin|user" />
+        <label class="rm-label">页面描述</label>
+        <textarea class="rm-textarea" id="page-desc" placeholder="该页面的核心用途，一到两句话">${esc(page?.description||'')}</textarea>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" data-modal-close>取消</button>
-      <button class="btn btn-primary" id="btn-save-fld">添加字段</button>
+      <button class="btn btn-primary" id="btn-save-page">保存</button>
     </div>`);
 
-  document.getElementById('btn-save-fld').addEventListener('click', () => {
-    const field_name = document.getElementById('fld-name').value.trim();
-    if (!field_name) { toast('请填写字段名', 'error'); return; }
-    const proj = reqProjects.find(p => p.id === rmCurrentProjId);
-    const ent  = proj.modules[rmCurrentModIdx].entities[entityIdx];
-    if (!ent.fields) ent.fields = [];
-    ent.fields.push({
-      field_name,
-      type:     document.getElementById('fld-type').value,
-      required: document.getElementById('fld-required').checked,
-      unique:   document.getElementById('fld-unique').checked,
-      notes:    document.getElementById('fld-notes').value.trim()
-    });
-    saveProjects([...reqProjects]);
-    closeModal();
-    renderRM();
-    toast('字段已添加', 'success');
+  document.getElementById('page-level').addEventListener('change', e => {
+    document.getElementById('parent-group').style.display = e.target.value === '2' ? '' : 'none';
   });
-}
 
-// ── API Modal ─────────────────────────────────────────────────
-function openApiModal() {
-  openModal(`
-    <div class="modal-header">
-      <div class="modal-title">新增 API 接口</div>
-      <button class="modal-close" data-modal-close>✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="rm-form-row">
-        <div class="rm-field-group">
-          <label class="rm-label">HTTP 方法 *</label>
-          <select class="rm-select" id="api-method">
-            <option>GET</option><option>POST</option><option>PUT</option>
-            <option>PATCH</option><option>DELETE</option>
-          </select>
-        </div>
-        <div class="rm-field-group">
-          <label class="rm-label">路径 *</label>
-          <input class="rm-input" id="api-path" placeholder="如：/api/users/{id}" />
-        </div>
-      </div>
-      <div class="rm-field-group">
-        <label class="rm-label">接口描述 *</label>
-        <input class="rm-input" id="api-summary" placeholder="如：获取当前登录用户的个人信息" />
-      </div>
-      <div class="rm-checkbox-row">
-        <input type="checkbox" id="api-auth" checked />
-        <label for="api-auth">需要登录鉴权（Token）</label>
-      </div>
-      <div class="rm-field-group">
-        <label class="rm-label">入参说明</label>
-        <input class="rm-input" id="api-req" placeholder="如：body: {email, password, name}；query: page, limit" />
-      </div>
-      <div class="rm-field-group">
-        <label class="rm-label">返回值说明</label>
-        <input class="rm-input" id="api-resp" placeholder="如：{token, user: {id, email, name}}" />
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" data-modal-close>取消</button>
-      <button class="btn btn-primary" id="btn-save-api">保存接口</button>
-    </div>`);
-
-  document.getElementById('btn-save-api').addEventListener('click', () => {
-    const path    = document.getElementById('api-path').value.trim();
-    const summary = document.getElementById('api-summary').value.trim();
-    if (!path || !summary) { toast('请填写路径和描述', 'error'); return; }
-    const proj = reqProjects.find(p => p.id === rmCurrentProjId);
-    const mod  = proj.modules[rmCurrentModIdx];
-    if (!mod.apis) mod.apis = [];
-    mod.apis.push({
-      method:        document.getElementById('api-method').value,
-      path,
-      summary,
-      auth_required: document.getElementById('api-auth').checked,
-      request_body:  document.getElementById('api-req').value.trim(),
-      response_desc: document.getElementById('api-resp').value.trim()
-    });
+  document.getElementById('btn-save-page').addEventListener('click', () => {
+    const name     = document.getElementById('page-name').value.trim();
+    if (!name) { toast('请填写页面名称', 'error'); return; }
+    const level    = +document.getElementById('page-level').value;
+    const type     = document.getElementById('page-type').value;
+    const parentId = level === 2 ? (document.getElementById('page-parent').value || null) : null;
+    const desc     = document.getElementById('page-desc').value.trim();
+    if (page) {
+      page.name = name; page.type = type; page.level = level; page.parent_id = parentId; page.description = desc;
+    } else {
+      if (!mod.pages) mod.pages = [];
+      mod.pages.push({
+        id: genId(), name, type, level, parent_id: parentId, description: desc,
+        user_flows: [],
+        schema: { filters: [], display_fields: [], page_actions: [], row_actions: [] },
+        states: [], constraints: []
+      });
+    }
     saveProjects([...reqProjects]);
     closeModal();
     renderRM();
-    toast('接口已添加', 'success');
+    toast(page ? '页面已更新' : '页面已创建', 'success');
   });
 }
 
 // ── Export Markdown ───────────────────────────────────────────
 function generateMarkdown(proj) {
-  let md = `# 项目需求文档：${proj.name}\n\n`;
+  let md = `# 产品需求文档：${proj.name}\n\n`;
   md += `**描述：** ${proj.description}\n`;
-  if (proj.tech_stack) md += `**技术栈：** ${proj.tech_stack}\n`;
+  if (proj.goals) md += `**项目目标：**\n${proj.goals}\n`;
   md += `**生成时间：** ${new Date().toLocaleString('zh-CN')}\n\n---\n\n`;
 
   (proj.modules || []).forEach((mod, mi) => {
     md += `## 模块 ${mi + 1}：${mod.name}\n\n`;
     if (mod.description) md += `${mod.description}\n\n`;
-
-    if ((mod.entities || []).length) {
-      md += `### 数据库设计\n\n`;
-      mod.entities.forEach(ent => {
-        md += `#### 表：${ent.name}\n\n`;
-        if (ent.description) md += `> ${ent.description}\n\n`;
-        md += `| 字段名 | 类型 | 必填 | 唯一 | 备注 |\n`;
-        md += `|--------|------|------|------|------|\n`;
-        (ent.fields || []).forEach(f => {
-          md += `| \`${f.field_name}\` | ${f.type} | ${f.required?'是':'否'} | ${f.unique?'是':'否'} | ${f.notes||''} |\n`;
-        });
-        md += `\n`;
-      });
-    }
-
-    if ((mod.apis || []).length) {
-      md += `### API 接口设计\n\n`;
-      mod.apis.forEach((api, ai) => {
-        md += `#### ${ai + 1}. ${api.method} ${api.path}\n\n`;
-        md += `- **功能：** ${api.summary}\n`;
-        md += `- **鉴权：** ${api.auth_required ? '需要 Token' : '无需鉴权'}\n`;
-        if (api.request_body)  md += `- **入参：** ${api.request_body}\n`;
-        if (api.response_desc) md += `- **返回：** ${api.response_desc}\n`;
-        md += `\n`;
-      });
-    }
-
+    if (mod.core_flow)   md += `**核心业务流：**\n${mod.core_flow}\n\n`;
     md += `---\n\n`;
+
+    const pages      = mod.pages || [];
+    const level1Pages = pages.filter(pg => pg.level === 1 || !pg.parent_id);
+
+    const renderPage = (pg, prefix) => {
+      const parentPage = pg.parent_id ? pages.find(p => p.id === pg.parent_id) : null;
+      md += `${prefix}：${pg.name}（${pg.type||'list'}）\n\n`;
+      if (parentPage)      md += `> 父页面：${parentPage.name}\n\n`;
+      if (pg.description)  md += `**描述：** ${pg.description}\n\n`;
+
+      const flows = pg.user_flows || [];
+      if (flows.length > 0) {
+        md += `#### 用户操作流程\n\n`;
+        md += `| 步骤 | 角色 | 用户操作 | 系统响应 | 备注 |\n`;
+        md += `|------|------|---------|---------|------|\n`;
+        flows.forEach(f => { md += `| ${f.step} | ${f.actor} | ${f.action} | ${f.response} | ${f.notes||''} |\n`; });
+        md += `\n`;
+      }
+
+      const schema        = pg.schema || {};
+      const filters       = schema.filters       || [];
+      const displayFields = schema.display_fields || [];
+      const pageActions   = schema.page_actions   || [];
+      const rowActions    = schema.row_actions    || [];
+      if (filters.length + displayFields.length + pageActions.length + rowActions.length > 0) {
+        md += `#### 页面结构\n\n`;
+        if (filters.length > 0) {
+          md += `**筛选条件：**\n\n`;
+          md += `| 字段标签 | 控件类型 | 选项值 | 必须 | 默认值 |\n`;
+          md += `|---------|---------|--------|------|--------|\n`;
+          filters.forEach(f => { md += `| ${f.label} | ${f.type} | ${f.options||''} | ${f.required?'是':'否'} | ${f.default_value||'—'} |\n`; });
+          md += `\n`;
+        }
+        if (displayFields.length > 0) {
+          md += `**展示内容：**\n\n`;
+          md += `| 字段标签 | 数据类型 | 可排序 | 备注 |\n`;
+          md += `|---------|---------|--------|------|\n`;
+          displayFields.forEach(df => { md += `| ${df.label} | ${df.type} | ${df.sortable?'是':'否'} | ${df.notes||''} |\n`; });
+          md += `\n`;
+        }
+        if (pageActions.length > 0) {
+          md += `**页面级操作：**\n\n`;
+          md += `| 按钮文字 | 样式 | 跳转目标 | 备注 |\n`;
+          md += `|---------|------|---------|------|\n`;
+          pageActions.forEach(pa => { md += `| ${pa.label} | ${pa.style} | ${pa.target_page||''} | ${pa.notes||''} |\n`; });
+          md += `\n`;
+        }
+        if (rowActions.length > 0) {
+          md += `**行级操作：**\n\n`;
+          md += `| 操作名称 | 样式 | 操作效果 | 需二次确认 | 备注 |\n`;
+          md += `|---------|------|---------|-----------|------|\n`;
+          rowActions.forEach(ra => { md += `| ${ra.label} | ${ra.style} | ${ra.effect} | ${ra.confirm?'是':'否'} | ${ra.notes||''} |\n`; });
+          md += `\n`;
+        }
+      }
+
+      const states = pg.states || [];
+      if (states.length > 0) {
+        md += `#### 页面状态\n\n`;
+        md += `| 状态名 | 触发条件 | 界面表现 |\n`;
+        md += `|--------|---------|----------|\n`;
+        states.forEach(s => { md += `| ${s.name} | ${s.condition} | ${s.ui_behavior} |\n`; });
+        md += `\n`;
+      }
+
+      const constraints = pg.constraints || [];
+      if (constraints.length > 0) {
+        md += `#### 约束规则\n\n`;
+        constraints.forEach(c => { md += `- ${c.text}\n`; });
+        md += `\n`;
+      }
+      md += `---\n\n`;
+    };
+
+    level1Pages.forEach(pg1 => {
+      renderPage(pg1, '### 一级页面');
+      pages.filter(pg => pg.parent_id === pg1.id).forEach(pg2 => renderPage(pg2, '### 详情页'));
+    });
+    // orphan pages
+    pages.filter(pg => pg.parent_id && !level1Pages.find(p1 => p1.id === pg.parent_id))
+         .forEach(pg => renderPage(pg, '### 详情页'));
   });
 
-  md += `*由 AxisQ 需求管理工具自动生成*\n`;
+  md += `*本文档由 AxisQ 需求管理工具生成*\n`;
+  md += `*请根据以上产品行为描述，自主设计：数据库表结构、API 接口、服务端业务逻辑*\n`;
   return md;
 }
 
@@ -2683,7 +3401,7 @@ function openExportModal(proj) {
     </div>
     <div class="modal-body">
       <div style="font-size:.84rem;color:var(--muted);line-height:1.6">
-        复制下方内容，粘贴给 Claude Code 或后端开发人员——可直接用于数据库建表和 API 路由开发。
+        复制下方内容，粘贴给 AI——AI 将根据产品行为描述自主设计数据库表结构、API 接口与业务逻辑。
       </div>
       <pre class="rm-export-pre">${esc(md)}</pre>
     </div>
