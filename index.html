@@ -11,17 +11,17 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #0d1117;
-      --bg2:       #161b22;
-      --bg3:       #21262d;
-      --border:    #30363d;
-      --text:      #e6edf3;
-      --muted:     #8b949e;
-      --client:    #58a6ff;
-      --server:    #3fb950;
-      --db:        #f78166;
-      --accent:    #bc8cff;
-      --shadow:    rgba(0,0,0,.5);
+      --bg:        #f6f8fa;
+      --bg2:       #ffffff;
+      --bg3:       #f0f2f5;
+      --border:    #d0d7de;
+      --text:      #1f2328;
+      --muted:     #656d76;
+      --client:    #0969da;
+      --server:    #1a7f37;
+      --db:        #cf222e;
+      --accent:    #8250df;
+      --shadow:    rgba(140,149,159,.25);
       --radius:    14px;
       --font:      'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;
     }
@@ -40,7 +40,7 @@
     .hero {
       text-align: center;
       padding: 64px 24px 48px;
-      background: linear-gradient(180deg, #161b22 0%, var(--bg) 100%);
+      background: linear-gradient(180deg, var(--bg3) 0%, var(--bg) 100%);
       border-bottom: 1px solid var(--border);
       position: relative;
       overflow: hidden;
@@ -50,14 +50,14 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 60% 40% at 20% 30%, rgba(88,166,255,.08) 0%, transparent 70%),
-        radial-gradient(ellipse 60% 40% at 80% 70%, rgba(188,140,255,.08) 0%, transparent 70%);
+        radial-gradient(ellipse 60% 40% at 20% 30%, rgba(9,105,218,.08) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 70%, rgba(130,80,223,.08) 0%, transparent 70%);
       pointer-events: none;
     }
     .badge {
       display: inline-block;
-      background: rgba(88,166,255,.12);
-      border: 1px solid rgba(88,166,255,.3);
+      background: rgba(9,105,218,.12);
+      border: 1px solid rgba(9,105,218,.3);
       color: var(--client);
       font-size: .75rem;
       font-weight: 600;
@@ -72,7 +72,7 @@
       font-weight: 800;
       line-height: 1.2;
       letter-spacing: -.02em;
-      background: linear-gradient(135deg, #58a6ff 0%, #bc8cff 50%, #f78166 100%);
+      background: linear-gradient(135deg, #0969da 0%, #8250df 50%, #cf222e 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -201,9 +201,9 @@
       transition: border-color .3s, box-shadow .3s, transform .3s;
       cursor: default;
     }
-    .arch-node.client  { background: rgba(88,166,255,.08);  border-color: rgba(88,166,255,.25); }
-    .arch-node.server  { background: rgba(63,185,80,.08);   border-color: rgba(63,185,80,.25); }
-    .arch-node.db      { background: rgba(247,129,102,.08); border-color: rgba(247,129,102,.25); }
+    .arch-node.client  { background: rgba(9,105,218,.07);  border-color: rgba(9,105,218,.3); }
+    .arch-node.server  { background: rgba(26,127,55,.07);  border-color: rgba(26,127,55,.3); }
+    .arch-node.db      { background: rgba(207,34,46,.07);  border-color: rgba(207,34,46,.3); }
     .arch-node.active  {
       border-color: var(--ncolor) !important;
       box-shadow: 0 0 24px rgba(var(--nrgb), .35);
@@ -291,7 +291,7 @@
     }
     .tab-btn:hover { color: var(--text); border-color: var(--muted); }
     .tab-btn.active {
-      background: rgba(88,166,255,.15);
+      background: rgba(9,105,218,.15);
       border-color: var(--client);
       color: var(--client);
     }
@@ -363,8 +363,8 @@
       margin-bottom: 3px;
       display: inline-block;
     }
-    .step-who.c { background: rgba(88,166,255,.15); color: var(--client); }
-    .step-who.s { background: rgba(63,185,80,.15);  color: var(--server); }
+    .step-who.c { background: rgba(9,105,218,.15); color: var(--client); }
+    .step-who.s { background: rgba(26,127,55,.15);  color: var(--server); }
     .step-who.d { background: rgba(247,129,102,.15);color: var(--db); }
 
     /* Controls */
@@ -492,10 +492,10 @@
       font-weight: 600;
       padding: 2px 8px;
       border-radius: 4px;
-      background: rgba(88,166,255,.15);
+      background: rgba(9,105,218,.15);
       color: var(--client);
     }
-    .tag.green { background: rgba(63,185,80,.15); color: var(--server); }
+    .tag.green { background: rgba(26,127,55,.15); color: var(--server); }
     .tag.red   { background: rgba(247,129,102,.15); color: var(--db); }
 
     /* ============================================================
@@ -536,7 +536,7 @@
     .code-body .str   { color: #a5d6ff; }
     .code-body .num   { color: #f0883e; }
     .code-body .kw    { color: #ff7b72; }
-    .code-body .cmt   { color: #8b949e; font-style: italic; }
+    .code-body .cmt   { color: #656d76; font-style: italic; }
     .code-body .mth   { color: #d2a8ff; }
     .code-body .url   { color: #3fb950; }
 
@@ -582,8 +582,8 @@
     .fade-in { animation: fadeIn .5s ease forwards; }
 
     @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(88,166,255,.4); }
-      50%       { box-shadow: 0 0 0 8px rgba(88,166,255,0); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(9,105,218,.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(9,105,218,0); }
     }
 
     /* ============================================================
@@ -663,7 +663,7 @@
       transition: background .15s, color .15s;
     }
     .nav-item:hover { background: var(--bg3); color: var(--text); }
-    .nav-item.active { background: rgba(88,166,255,.1); color: var(--client); font-weight: 600; }
+    .nav-item.active { background: rgba(9,105,218,.1); color: var(--client); font-weight: 600; }
     .nav-item.active::before {
       content: '';
       position: absolute;
@@ -856,7 +856,7 @@
       font-family: var(--font);
       text-align: center;
     }
-    .rm-project-new:hover { border-color: var(--client); background: rgba(88,166,255,.04); color: var(--client); }
+    .rm-project-new:hover { border-color: var(--client); background: rgba(9,105,218,.04); color: var(--client); }
     .rm-project-new-icon { font-size: 1.8rem; }
 
     /* Project info bar */
@@ -897,7 +897,7 @@
       cursor: pointer;
       transition: border-color .2s, background .15s;
     }
-    .rm-module-row:hover { border-color: var(--server); background: rgba(63,185,80,.04); }
+    .rm-module-row:hover { border-color: var(--server); background: rgba(26,127,55,.04); }
     .rm-module-info { flex: 1; min-width: 0; }
     .rm-module-row-name { font-size: .95rem; font-weight: 700; margin-bottom: 3px; }
     .rm-module-row-desc { font-size: .82rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -983,7 +983,7 @@
       font-weight: 700;
       padding: 2px 8px;
       border-radius: 4px;
-      background: rgba(188,140,255,.12);
+      background: rgba(130,80,223,.12);
       color: var(--accent);
       font-family: monospace;
     }
@@ -1019,9 +1019,9 @@
       letter-spacing: .03em;
       flex-shrink: 0;
     }
-    .method-GET    { background: rgba(63,185,80,.15);   color: #3fb950; }
-    .method-POST   { background: rgba(88,166,255,.15);  color: #58a6ff; }
-    .method-PUT    { background: rgba(188,140,255,.15); color: #bc8cff; }
+    .method-GET    { background: rgba(26,127,55,.12);   color: #1a7f37; }
+    .method-POST   { background: rgba(9,105,218,.12);  color: #0969da; }
+    .method-PUT    { background: rgba(130,80,223,.12); color: #8250df; }
     .method-PATCH  { background: rgba(240,136,62,.15);  color: #f0883e; }
     .method-DELETE { background: rgba(247,129,102,.15); color: #f78166; }
 
@@ -1047,7 +1047,7 @@
     .rm-select option { background: var(--bg2); }
     .rm-input:focus, .rm-textarea:focus, .rm-select:focus {
       border-color: var(--client);
-      box-shadow: 0 0 0 3px rgba(88,166,255,.15);
+      box-shadow: 0 0 0 3px rgba(9,105,218,.15);
     }
     .rm-label {
       display: block;
@@ -1151,8 +1151,8 @@
 
     /* Export button */
     .btn-export {
-      background: rgba(188,140,255,.1);
-      border: 1px solid rgba(188,140,255,.3);
+      background: rgba(130,80,223,.1);
+      border: 1px solid rgba(130,80,223,.3);
       color: var(--accent);
       font-family: var(--font);
       font-size: .85rem;
@@ -1162,7 +1162,7 @@
       cursor: pointer;
       transition: background .2s;
     }
-    .btn-export:hover { background: rgba(188,140,255,.22); }
+    .btn-export:hover { background: rgba(130,80,223,.22); }
 
     @media (max-width: 600px) {
       #rm-root { padding: 20px 14px 48px; }
@@ -1183,7 +1183,7 @@
       gap: 12px;
       transition: border-color .2s, background .15s;
     }
-    .pg-tree-row:hover { border-color: var(--client); background: rgba(88,166,255,.03); }
+    .pg-tree-row:hover { border-color: var(--client); background: rgba(9,105,218,.03); }
     .pg-tree-row.pg-level2 { padding-left: 40px; margin-left: 20px; border-style: dashed; }
     .pg-tree-icon { font-size: 1.15rem; flex-shrink: 0; }
     .pg-tree-main { flex: 1; min-width: 0; }
@@ -1214,9 +1214,9 @@
       font-weight: 500;
       padding: 2px 7px;
       border-radius: 4px;
-      background: rgba(88,166,255,.08);
+      background: rgba(9,105,218,.08);
       color: var(--muted);
-      border: 1px solid rgba(88,166,255,.15);
+      border: 1px solid rgba(9,105,218,.15);
     }
 
     /* Core flow bar */
@@ -1238,8 +1238,8 @@
       padding: 16px 0;
     }
     .flow-node {
-      background: rgba(88,166,255,.1);
-      border: 1px solid rgba(88,166,255,.3);
+      background: rgba(9,105,218,.1);
+      border: 1px solid rgba(9,105,218,.3);
       color: var(--client);
       font-size: .84rem;
       font-weight: 600;
@@ -1305,7 +1305,7 @@
       border-radius: 4px;
       font-family: monospace;
     }
-    .style-primary { background: rgba(88,166,255,.15);  color: #58a6ff; }
+    .style-primary { background: rgba(9,105,218,.12);  color: #0969da; }
     .style-ghost   { background: var(--bg3);             color: var(--muted); }
     .style-danger  { background: rgba(247,129,102,.15); color: #f78166; }
     .style-link    { background: transparent;            color: var(--client); text-decoration: underline; }
@@ -1349,14 +1349,14 @@
     .pg-tree-row[draggable="true"] { cursor: default; }
     .pg-tree-row.drag-over {
       border-color: var(--client) !important;
-      background: rgba(88,166,255,.1) !important;
-      box-shadow: 0 0 0 2px rgba(88,166,255,.25);
+      background: rgba(9,105,218,.1) !important;
+      box-shadow: 0 0 0 2px rgba(9,105,218,.25);
     }
     .pg-tree-row.drag-ghost { opacity: .4; }
 
     /* Schema table drag row */
     tr[draggable="true"] td:first-child { cursor: default; }
-    tr.drag-over-row td { background: rgba(88,166,255,.08) !important; }
+    tr.drag-over-row td { background: rgba(9,105,218,.08) !important; }
     tr.drag-ghost-row { opacity: .4; }
 
     /* Collapsible page tree */
@@ -1379,6 +1379,14 @@
       padding: 0;
     }
     .pg-toggle:hover { background: var(--bg3); color: var(--text); }
+
+    /* Basic module list rows */
+    .basic-list-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .basic-list-row:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
@@ -1670,7 +1678,7 @@ Content-Type: application/json<br>
             <td><span class="tag red">$2b$10$kQ8…</span></td>
             <td>2024-02-03 14:01</td>
           </tr>
-          <tr style="background:rgba(88,166,255,.05);">
+          <tr style="background:rgba(9,105,218,.05);">
             <td><span class="tag">1042</span></td>
             <td>张三 ← 刚注册</td>
             <td>zhang@example.com</td>
@@ -2271,22 +2279,74 @@ function buildProjectList() {
     </div>`;
 }
 
+// ── Basic Modules ─────────────────────────────────────────────
+function getDefaultBasicModules() {
+  return [
+    { id: 'basic_register', kind: 'basic', name: '注册', icon: '📝',
+      config: { channels: ['email'], password_min_len: 8, password_rules: ['number'],
+                verification: 'required', third_party: [], profile_fields: [] } },
+    { id: 'basic_login', kind: 'basic', name: '登录', icon: '🔑',
+      config: { methods: ['email_password'], session_days: 30,
+                multi_device: true, two_factor: false, max_attempts: 5, lockout_minutes: 30 } }
+  ];
+}
+
+function ensureBasicModules(proj) {
+  if (!proj.modules) proj.modules = [];
+  const defaults = getDefaultBasicModules();
+  let changed = false;
+  defaults.slice().reverse().forEach(def => {
+    if (!proj.modules.find(m => m.id === def.id)) {
+      proj.modules.unshift(JSON.parse(JSON.stringify(def)));
+      changed = true;
+    }
+  });
+  if (changed) saveProjects([...reqProjects]);
+}
+
 // ── Project Detail ────────────────────────────────────────────
 function buildProjectDetail() {
   const proj = reqProjects.find(p => p.id === rmCurrentProjId);
   if (!proj) return buildProjectList();
 
-  const modRows = (proj.modules || []).map((m, idx) => `
-    <div class="rm-module-row" data-click-mod="${idx}">
-      <div class="rm-module-info">
-        <div class="rm-module-row-name">${esc(m.name)}</div>
-        <div class="rm-module-row-desc">${esc(m.description || '暂无描述')}</div>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-        <button class="rm-icon-btn danger" data-del-mod="${idx}">🗑️</button>
-        <span class="rm-module-arrow">›</span>
-      </div>
-    </div>`).join('');
+  ensureBasicModules(proj);
+
+  const allMods = proj.modules || [];
+  const basicMods  = allMods.filter(m => m.kind === 'basic');
+  const customMods = allMods.filter(m => m.kind !== 'basic');
+
+  const basicRows = basicMods.map((m, i) => {
+    const idx = allMods.indexOf(m);
+    return `
+      <div class="rm-module-row" data-click-mod="${idx}" style="cursor:pointer">
+        <div class="rm-module-info" style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:1.3rem">${m.icon || '🧩'}</span>
+          <div>
+            <div class="rm-module-row-name">${esc(m.name)}</div>
+            <div class="rm-module-row-desc" style="color:var(--muted);font-size:.8rem">预置模块 · 标准化配置</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+          <span style="font-size:.78rem;color:var(--muted);padding:3px 8px;border:1px solid var(--border);border-radius:99px">基础</span>
+          <span class="rm-module-arrow">›</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  const customRows = customMods.map(m => {
+    const idx = allMods.indexOf(m);
+    return `
+      <div class="rm-module-row" data-click-mod="${idx}">
+        <div class="rm-module-info">
+          <div class="rm-module-row-name">${esc(m.name)}</div>
+          <div class="rm-module-row-desc">${esc(m.description || '暂无描述')}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+          <button class="rm-icon-btn danger" data-del-mod="${idx}">🗑️</button>
+          <span class="rm-module-arrow">›</span>
+        </div>
+      </div>`;
+  }).join('');
 
   return `
     <div class="rm-breadcrumb">
@@ -2307,10 +2367,21 @@ function buildProjectDetail() {
       <div class="rm-project-info-desc">${esc(proj.description)}</div>
       ${proj.goals ? `<div style="font-size:.85rem;color:var(--text);margin-top:6px"><span style="color:var(--muted);font-size:.78rem">项目目标：</span>${esc(proj.goals)}</div>` : ''}
     </div>
+
+    <div class="rm-section-header" style="margin-top:8px">
+      <div>
+        <div class="rm-section-title">基础模块</div>
+        <div class="rm-section-sub">注册、登录等预置模块，使用标准化配置，不可新建或删除</div>
+      </div>
+    </div>
+    <div class="rm-module-list" style="margin-bottom:28px">
+      ${basicRows}
+    </div>
+
     <div class="rm-section-header">
       <div>
-        <div class="rm-section-title">功能模块</div>
-        <div class="rm-section-sub">每个模块代表一个功能域，如「用户管理」「订单系统」</div>
+        <div class="rm-section-title">自定义模块</div>
+        <div class="rm-section-sub">根据产品需要自由添加功能模块，如「工单管理」「报表中心」</div>
       </div>
       <button class="btn btn-primary" id="btn-show-add-mod">＋ 新建模块</button>
     </div>
@@ -2335,10 +2406,10 @@ function buildProjectDetail() {
       </div>
     </div>
     <div class="rm-module-list">
-      ${modRows || `
+      ${customRows || `
         <div class="rm-empty" style="padding:40px 24px">
           <span class="rm-empty-icon" style="font-size:2rem">📦</span>
-          <div class="rm-empty-title">还没有模块</div>
+          <div class="rm-empty-title">还没有自定义模块</div>
           <div class="rm-empty-desc">点击「新建模块」添加第一个功能模块</div>
         </div>`}
     </div>`;
@@ -2377,12 +2448,207 @@ function buildPageTreeRows(pages, parentId, collapsedSet) {
   }).join('');
 }
 
+// ── Basic Module Editor ───────────────────────────────────────
+function buildBasicModuleEditor(mod) {
+  const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+  if (!proj) return buildProjectList();
+  const cfg = mod.config || {};
+
+  const breadcrumb = `
+    <div class="rm-breadcrumb">
+      <button class="rm-breadcrumb-link" data-nav="project-list">需求管理</button>
+      <span class="rm-breadcrumb-sep">›</span>
+      <button class="rm-breadcrumb-link" data-nav="project-detail">${esc(proj.name)}</button>
+      <span class="rm-breadcrumb-sep">›</span>
+      <span>${mod.icon} ${esc(mod.name)}</span>
+    </div>
+    <div class="rm-page-header" style="margin-bottom:24px">
+      <div>
+        <div class="rm-page-title">${mod.icon} ${esc(mod.name)}</div>
+        <div style="font-size:.85rem;color:var(--muted);margin-top:4px">基础模块 — 标准化配置，不可删除</div>
+      </div>
+    </div>`;
+
+  if (mod.id === 'basic_register') {
+    const channels = cfg.channels || [];
+    const pwRules  = cfg.password_rules || [];
+    const tpList   = cfg.third_party || [];
+    const pfList   = cfg.profile_fields || [];
+
+    const tpRows = tpList.map((tp, i) => `
+      <div class="basic-list-row" data-tp-idx="${i}">
+        <input class="rm-input" style="flex:1" value="${esc(tp.name)}" data-tp-name="${i}" placeholder="平台名称，如：微信" />
+        <input class="rm-input" style="flex:1" value="${esc(tp.key||'')}" data-tp-key="${i}" placeholder="平台标识，如：wechat" />
+        <button class="rm-icon-btn danger" style="flex-shrink:0" data-del-tp="${i}">✕</button>
+      </div>`).join('');
+
+    const pfRows = pfList.map((pf, i) => {
+      const isSelect = pf.type === 'select';
+      return `
+        <div class="basic-list-row" data-pf-idx="${i}" style="flex-wrap:wrap;gap:6px">
+          <input class="rm-input" style="flex:1;min-width:120px" value="${esc(pf.label)}" data-pf-label="${i}" placeholder="字段名称" />
+          <select class="rm-select" style="flex:1;min-width:120px" data-pf-type="${i}">
+            <option value="text"     ${pf.type==='text'     ?'selected':''}>文本（单行）</option>
+            <option value="textarea" ${pf.type==='textarea' ?'selected':''}>多行文本</option>
+            <option value="number"   ${pf.type==='number'   ?'selected':''}>数字</option>
+            <option value="select"   ${pf.type==='select'   ?'selected':''}>下拉选择</option>
+            <option value="date"     ${pf.type==='date'     ?'selected':''}>日期</option>
+          </select>
+          ${isSelect ? `<input class="rm-input" style="flex:2;min-width:180px" value="${esc(pf.options||'')}" data-pf-options="${i}" placeholder="选项值，逗号分隔，如：互联网,金融,教育" />` : ''}
+          <button class="rm-icon-btn danger" style="flex-shrink:0" data-del-pf="${i}">✕</button>
+        </div>`;
+    }).join('');
+
+    return breadcrumb + `
+      <div class="rm-add-module-form" style="margin-bottom:20px">
+        <div class="rm-section-title" style="margin-bottom:18px">注册配置</div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <label class="rm-label">注册渠道</label>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;padding-top:4px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" id="ch-email" ${channels.includes('email')?'checked':''} /> 邮箱
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" id="ch-phone" ${channels.includes('phone')?'checked':''} /> 手机号
+            </label>
+          </div>
+        </div>
+
+        <div class="rm-form-row" style="margin-bottom:18px">
+          <div class="rm-field-group">
+            <label class="rm-label">密码最短长度</label>
+            <input class="rm-input" type="number" id="pw-min-len" min="4" max="32" value="${cfg.password_min_len||8}" style="width:120px" />
+          </div>
+          <div class="rm-field-group">
+            <label class="rm-label">验证码</label>
+            <select class="rm-select" id="reg-verification" style="width:200px">
+              <option value="required" ${cfg.verification==='required'||!cfg.verification?'selected':''}>需要验证</option>
+              <option value="none"     ${cfg.verification==='none'?'selected':''}>无需验证</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <label class="rm-label">密码强度规则</label>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;padding-top:4px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" id="pw-uppercase" ${pwRules.includes('uppercase')?'checked':''} /> 必须含大写字母
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" id="pw-number" ${pwRules.includes('number')?'checked':''} /> 必须含数字
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" id="pw-special" ${pwRules.includes('special')?'checked':''} /> 必须含特殊字符
+            </label>
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <label class="rm-label" style="margin:0">第三方登录（可自定义）</label>
+            <button class="rm-icon-btn" id="btn-add-tp">＋ 添加</button>
+          </div>
+          <div id="tp-list" style="display:flex;flex-direction:column;gap:6px">
+            ${tpRows || '<div style="color:var(--muted);font-size:.84rem;padding:8px 0">暂未配置第三方登录</div>'}
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:18px;margin-top:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <label class="rm-label" style="margin:0">必填注册资料（可自定义）</label>
+            <button class="rm-icon-btn" id="btn-add-pf">＋ 添加字段</button>
+          </div>
+          <div id="pf-list" style="display:flex;flex-direction:column;gap:8px">
+            ${pfRows || '<div style="color:var(--muted);font-size:.84rem;padding:8px 0">暂未配置必填资料</div>'}
+          </div>
+        </div>
+
+        <div class="rm-form-actions">
+          <button class="btn btn-primary" data-save-basic-config="${mod.id}">保存配置</button>
+        </div>
+      </div>`;
+  }
+
+  if (mod.id === 'basic_login') {
+    const methods = cfg.methods || [];
+    return breadcrumb + `
+      <div class="rm-add-module-form" style="margin-bottom:20px">
+        <div class="rm-section-title" style="margin-bottom:18px">登录配置</div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <label class="rm-label">登录方式</label>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;padding-top:4px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" id="lm-email" ${methods.includes('email_password')?'checked':''} /> 邮箱 + 密码
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" id="lm-phone" ${methods.includes('phone_sms')?'checked':''} /> 手机号 + 验证码
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" id="lm-third" ${methods.includes('third_party')?'checked':''} /> 第三方授权
+            </label>
+          </div>
+        </div>
+
+        <div class="rm-form-row" style="margin-bottom:18px">
+          <div class="rm-field-group">
+            <label class="rm-label">会话有效期</label>
+            <select class="rm-select" id="login-session">
+              <option value="7"  ${cfg.session_days===7 ?'selected':''}>7 天</option>
+              <option value="30" ${cfg.session_days===30||!cfg.session_days?'selected':''}>30 天</option>
+              <option value="0"  ${cfg.session_days===0 ?'selected':''}>永久</option>
+            </select>
+          </div>
+          <div class="rm-field-group">
+            <label class="rm-label">登录失败锁定时长</label>
+            <select class="rm-select" id="login-lockout">
+              <option value="15"  ${cfg.lockout_minutes===15?'selected':''}>15 分钟</option>
+              <option value="30"  ${cfg.lockout_minutes===30||!cfg.lockout_minutes?'selected':''}>30 分钟</option>
+              <option value="60"  ${cfg.lockout_minutes===60?'selected':''}>1 小时</option>
+              <option value="1440"${cfg.lockout_minutes===1440?'selected':''}>24 小时</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rm-form-row" style="margin-bottom:18px">
+          <div class="rm-field-group">
+            <label class="rm-label">最大失败尝试次数</label>
+            <input class="rm-input" type="number" id="login-max-attempts" min="1" max="20" value="${cfg.max_attempts||5}" style="width:120px" />
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:14px">
+          <label class="rm-label">高级选项</label>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;padding-top:4px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" id="login-multi-device" ${cfg.multi_device!==false?'checked':''} /> 允许多设备同时登录
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" id="login-2fa" ${cfg.two_factor?'checked':''} /> 开启二次验证（2FA）
+            </label>
+          </div>
+        </div>
+
+        <div class="rm-form-actions">
+          <button class="btn btn-primary" data-save-basic-config="${mod.id}">保存配置</button>
+        </div>
+      </div>`;
+  }
+
+  return breadcrumb + `<div class="rm-empty" style="padding:60px 24px">
+    <div class="rm-empty-icon">🧩</div>
+    <div class="rm-empty-title">未知基础模块</div>
+  </div>`;
+}
+
 // ── Module Editor ─────────────────────────────────────────────
 function buildModuleEditor() {
   const proj = reqProjects.find(p => p.id === rmCurrentProjId);
   if (!proj) return buildProjectList();
   const mod  = (proj.modules || [])[rmCurrentModIdx];
   if (!mod)  return buildProjectDetail();
+  if (mod.kind === 'basic') return buildBasicModuleEditor(mod);
 
   const pages = mod.pages || [];
   const treeRows = buildPageTreeRows(pages, null, rmCollapsedPages);
@@ -2456,7 +2722,7 @@ function buildPageTreeRow(pg, hasChildren, isCollapsed) {
   const filterCount     = ((pg.schema||{}).filters||[]).length;
   const stateCount      = (pg.states||[]).length;
   const constraintCount = (pg.constraints||[]).length;
-  const typeColors = { list:'#58a6ff', detail:'#bc8cff', form:'#3fb950', dashboard:'#f0883e', other:'#8b949e' };
+  const typeColors = { list:'#0969da', detail:'#8250df', form:'#1a7f37', dashboard:'#b35000', other:'#656d76' };
   const tc = typeColors[pg.type] || typeColors.other;
   const isRoot = !pg.parent_id;
   return `
@@ -2493,7 +2759,7 @@ function buildPageEditor() {
   const page = (mod.pages||[]).find(p => p.id === rmCurrentPageId);
   if (!page) return buildModuleEditor();
 
-  const typeColors = { list:'#58a6ff', detail:'#bc8cff', form:'#3fb950', dashboard:'#f0883e', other:'#8b949e' };
+  const typeColors = { list:'#0969da', detail:'#8250df', form:'#1a7f37', dashboard:'#b35000', other:'#656d76' };
   const tc = typeColors[page.type] || typeColors.other;
   const tabs = [
     { key:'flows',       label:'👣 用户流程' },
@@ -2924,7 +3190,7 @@ function bindRMEvents() {
     const proj = reqProjects.find(p => p.id === rmCurrentProjId);
     if (!proj.modules) proj.modules = [];
     proj.modules.push({
-      id: genId(), name,
+      id: genId(), kind: 'custom', name,
       description: document.getElementById('mod-desc-inp').value.trim(),
       core_flow:   document.getElementById('mod-flow-inp').value.trim(),
       pages: []
@@ -3010,6 +3276,130 @@ function bindRMEvents() {
   document.getElementById('btn-export-md')?.addEventListener('click', () => {
     const proj = reqProjects.find(p => p.id === rmCurrentProjId);
     openExportModal(proj);
+  });
+
+  // ── Basic module config save ──────────────────────────────
+  root.querySelectorAll('[data-save-basic-config]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const modId = btn.dataset.saveBasicConfig;
+      const proj  = reqProjects.find(p => p.id === rmCurrentProjId);
+      const mod   = (proj?.modules || []).find(m => m.id === modId);
+      if (!mod) return;
+
+      if (modId === 'basic_register') {
+        const channels = [];
+        if (document.getElementById('ch-email')?.checked) channels.push('email');
+        if (document.getElementById('ch-phone')?.checked) channels.push('phone');
+        const pwRules = [];
+        if (document.getElementById('pw-uppercase')?.checked) pwRules.push('uppercase');
+        if (document.getElementById('pw-number')?.checked)    pwRules.push('number');
+        if (document.getElementById('pw-special')?.checked)   pwRules.push('special');
+        // Read third-party rows from DOM
+        const tpRows = [...root.querySelectorAll('.basic-list-row[data-tp-idx]')];
+        const third_party = tpRows.map(row => ({
+          id: genId(),
+          name: (row.querySelector('[data-tp-name]')?.value || '').trim(),
+          key:  (row.querySelector('[data-tp-key]')?.value  || '').trim()
+        })).filter(tp => tp.name);
+        // Read profile field rows from DOM
+        const pfRows = [...root.querySelectorAll('.basic-list-row[data-pf-idx]')];
+        const profile_fields = pfRows.map(row => {
+          const type = row.querySelector('[data-pf-type]')?.value || 'text';
+          return {
+            id:      genId(),
+            label:   (row.querySelector('[data-pf-label]')?.value || '').trim(),
+            type,
+            options: type === 'select' ? (row.querySelector('[data-pf-options]')?.value || '').trim() : ''
+          };
+        }).filter(pf => pf.label);
+        mod.config = {
+          channels,
+          password_min_len: parseInt(document.getElementById('pw-min-len')?.value) || 8,
+          password_rules: pwRules,
+          verification: document.getElementById('reg-verification')?.value || 'required',
+          third_party,
+          profile_fields
+        };
+      } else if (modId === 'basic_login') {
+        const methods = [];
+        if (document.getElementById('lm-email')?.checked) methods.push('email_password');
+        if (document.getElementById('lm-phone')?.checked) methods.push('phone_sms');
+        if (document.getElementById('lm-third')?.checked) methods.push('third_party');
+        mod.config = {
+          methods,
+          session_days:     parseInt(document.getElementById('login-session')?.value)      || 30,
+          multi_device:     document.getElementById('login-multi-device')?.checked !== false,
+          two_factor:       !!document.getElementById('login-2fa')?.checked,
+          max_attempts:     parseInt(document.getElementById('login-max-attempts')?.value)  || 5,
+          lockout_minutes:  parseInt(document.getElementById('login-lockout')?.value)       || 30
+        };
+      }
+      saveProjects([...reqProjects]);
+      toast('配置已保存', 'success');
+    });
+  });
+
+  // Basic module dynamic rows: add/delete third-party
+  document.getElementById('btn-add-tp')?.addEventListener('click', () => {
+    const list = document.getElementById('tp-list');
+    if (!list) return;
+    const idx = list.querySelectorAll('.basic-list-row').length;
+    const row = document.createElement('div');
+    row.className = 'basic-list-row';
+    row.dataset.tpIdx = idx;
+    row.style.cssText = 'display:flex;gap:6px;align-items:center';
+    row.innerHTML = `
+      <input class="rm-input" style="flex:1" data-tp-name="${idx}" placeholder="平台名称，如：微信" />
+      <input class="rm-input" style="flex:1" data-tp-key="${idx}" placeholder="平台标识，如：wechat" />
+      <button class="rm-icon-btn danger" style="flex-shrink:0" data-del-tp="${idx}">✕</button>`;
+    list.appendChild(row);
+    row.querySelector('[data-del-tp]').addEventListener('click', () => row.remove());
+  });
+  root.querySelectorAll('[data-del-tp]').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.basic-list-row').remove());
+  });
+
+  // Basic module dynamic rows: add/delete profile fields
+  document.getElementById('btn-add-pf')?.addEventListener('click', () => {
+    const list = document.getElementById('pf-list');
+    if (!list) return;
+    const idx = list.querySelectorAll('.basic-list-row').length;
+    const row = document.createElement('div');
+    row.className = 'basic-list-row';
+    row.dataset.pfIdx = idx;
+    row.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;align-items:center';
+    row.innerHTML = `
+      <input class="rm-input" style="flex:1;min-width:120px" data-pf-label="${idx}" placeholder="字段名称" />
+      <select class="rm-select" style="flex:1;min-width:120px" data-pf-type="${idx}">
+        <option value="text">文本（单行）</option>
+        <option value="textarea">多行文本</option>
+        <option value="number">数字</option>
+        <option value="select">下拉选择</option>
+        <option value="date">日期</option>
+      </select>
+      <button class="rm-icon-btn danger" style="flex-shrink:0" data-del-pf="${idx}">✕</button>`;
+    // Show options input when type=select
+    const typeSelect = row.querySelector('[data-pf-type]');
+    typeSelect.addEventListener('change', () => {
+      let optInput = row.querySelector('[data-pf-options]');
+      if (typeSelect.value === 'select') {
+        if (!optInput) {
+          optInput = document.createElement('input');
+          optInput.className = 'rm-input';
+          optInput.style.cssText = 'flex:2;min-width:180px';
+          optInput.dataset.pfOptions = idx;
+          optInput.placeholder = '选项值，逗号分隔，如：互联网,金融,教育';
+          row.insertBefore(optInput, row.querySelector('[data-del-pf]'));
+        }
+      } else if (optInput) {
+        optInput.remove();
+      }
+    });
+    list.appendChild(row);
+    row.querySelector('[data-del-pf]').addEventListener('click', () => row.remove());
+  });
+  root.querySelectorAll('[data-del-pf]').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.basic-list-row').remove());
   });
 
   // ── Page tree collapse/expand ──────────────────────────────
