@@ -1359,11 +1359,26 @@
     tr.drag-over-row td { background: rgba(88,166,255,.08) !important; }
     tr.drag-ghost-row { opacity: .4; }
 
-    /* Depth indentation for arbitrary-depth page tree */
-    .pg-depth-1  { padding-left: 16px; }
-    .pg-depth-2  { padding-left: 36px; border-style: dashed; margin-left: 0; }
-    .pg-depth-3  { padding-left: 56px; border-style: dashed; margin-left: 0; }
-    .pg-depth-4  { padding-left: 76px; border-style: dashed; margin-left: 0; }
+    /* Collapsible page tree */
+    .pg-node { position: relative; }
+    .pg-children {
+      border-left: 2px solid var(--border);
+      margin-left: 28px;
+      padding-left: 16px;
+      padding-top: 4px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .pg-children.hidden { display: none; }
+    .pg-toggle {
+      width: 20px; height: 20px;
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: .72rem; flex-shrink: 0;
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      transition: color .15s;
+      padding: 0;
+    }
+    .pg-toggle:hover { background: var(--bg3); color: var(--text); }
   </style>
 </head>
 <body>
@@ -2181,6 +2196,7 @@ let rmCurrentProjId = null;
 let rmCurrentModIdx = null;
 let rmCurrentPageId = null;
 let rmPageEditorTab = 'flows';   // 'flows' | 'schema' | 'states' | 'constraints'
+let rmCollapsedPages = new Set();  // ids of collapsed page tree nodes; empty = all expanded
 let reqProjects     = [];
 
 // ── localStorage ──────────────────────────────────────────────
@@ -2343,11 +2359,21 @@ function getPageDepth(pageId, pages, depth) {
   return getPageDepth(page.parent_id, pages, depth + 1);
 }
 
-// Recursive tree rows: root pages first, then their descendants
-function buildPageTreeRows(pages, parentId, depth) {
+/// Recursive tree rows with collapsible nodes
+function buildPageTreeRows(pages, parentId, collapsedSet) {
   const children = pages.filter(pg => (pg.parent_id || null) === (parentId || null));
   return children.map(pg => {
-    return buildPageTreeRow(pg, depth) + buildPageTreeRows(pages, pg.id, depth + 1);
+    const hasChildren = pages.some(p => p.parent_id === pg.id);
+    const isCollapsed = collapsedSet && collapsedSet.has(pg.id);
+    const childrenHtml = hasChildren
+      ? `<div class="pg-children${isCollapsed ? ' hidden' : ''}" id="pg-children-${pg.id}">
+           ${buildPageTreeRows(pages, pg.id, collapsedSet)}
+         </div>`
+      : '';
+    return `<div class="pg-node" data-node-id="${pg.id}">
+              ${buildPageTreeRow(pg, hasChildren, isCollapsed)}
+              ${childrenHtml}
+            </div>`;
   }).join('');
 }
 
@@ -2359,7 +2385,7 @@ function buildModuleEditor() {
   if (!mod)  return buildProjectDetail();
 
   const pages = mod.pages || [];
-  const treeRows = buildPageTreeRows(pages, null, 0);
+  const treeRows = buildPageTreeRows(pages, null, rmCollapsedPages);
 
   // Flow diagram from page_actions
   const flowLinks = [];
@@ -2425,23 +2451,24 @@ function buildModuleEditor() {
     ${flowDiagram}` : ''}`;
 }
 
-function buildPageTreeRow(pg, depth) {
+function buildPageTreeRow(pg, hasChildren, isCollapsed) {
   const flowCount       = (pg.user_flows||[]).length;
   const filterCount     = ((pg.schema||{}).filters||[]).length;
   const stateCount      = (pg.states||[]).length;
   const constraintCount = (pg.constraints||[]).length;
   const typeColors = { list:'#58a6ff', detail:'#bc8cff', form:'#3fb950', dashboard:'#f0883e', other:'#8b949e' };
   const tc = typeColors[pg.type] || typeColors.other;
-  const depthClass = depth > 0 ? `pg-depth-${Math.min(depth, 4)}` : '';
+  const isRoot = !pg.parent_id;
   return `
-    <div class="pg-tree-row ${depthClass}" draggable="true" data-page-id="${pg.id}" data-drop-target="${pg.id}">
+    <div class="pg-tree-row" draggable="true" data-page-id="${pg.id}" data-drop-target="${pg.id}">
+      <button class="pg-toggle" data-toggle-node="${pg.id}" title="${hasChildren ? '收起/展开子页面' : ''}">${hasChildren ? (isCollapsed ? '▶' : '▼') : ''}</button>
       <span class="drag-handle" title="拖动调整层级">⠿</span>
       <div class="pg-tree-icon">📱</div>
       <div class="pg-tree-main">
         <div class="pg-tree-name">${esc(pg.name)}</div>
         <div class="pg-tree-badges">
           <span class="pg-type-badge" style="background:${tc}22;color:${tc}">${esc(pg.type||'list')}</span>
-          ${depth === 0 ? '<span class="pg-level-badge">根页面</span>' : `<span class="pg-level-badge">子页面</span>`}
+          ${isRoot ? '<span class="pg-level-badge">根页面</span>' : '<span class="pg-level-badge">子页面</span>'}
           ${flowCount>0       ?`<span class="pg-stat-chip">${flowCount} 流程</span>`:''}
           ${filterCount>0     ?`<span class="pg-stat-chip">${filterCount} 筛选</span>`:''}
           ${stateCount>0      ?`<span class="pg-stat-chip">${stateCount} 状态</span>`:''}
@@ -2983,6 +3010,25 @@ function bindRMEvents() {
   document.getElementById('btn-export-md')?.addEventListener('click', () => {
     const proj = reqProjects.find(p => p.id === rmCurrentProjId);
     openExportModal(proj);
+  });
+
+  // ── Page tree collapse/expand ──────────────────────────────
+  root.querySelectorAll('[data-toggle-node]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const nodeId = btn.dataset.toggleNode;
+      const childrenEl = document.getElementById('pg-children-' + nodeId);
+      if (!childrenEl) return;
+      if (rmCollapsedPages.has(nodeId)) {
+        rmCollapsedPages.delete(nodeId);
+        childrenEl.classList.remove('hidden');
+        btn.textContent = '▼';
+      } else {
+        rmCollapsedPages.add(nodeId);
+        childrenEl.classList.add('hidden');
+        btn.textContent = '▶';
+      }
+    });
   });
 
   // ── Page tree drag & drop ──────────────────────────────────
