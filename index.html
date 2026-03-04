@@ -1387,6 +1387,22 @@
       border-bottom: 1px solid var(--border);
     }
     .basic-list-row:last-child { border-bottom: none; }
+
+    /* Release history */
+    .release-list { display: flex; flex-direction: column; gap: 12px; }
+    .release-row {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px 20px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .release-row-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .release-version-badge {
+      background: rgba(9,105,218,.1); color: var(--client);
+      border: 1px solid rgba(9,105,218,.25); border-radius: 99px;
+      font-size: .82rem; font-weight: 700; padding: 3px 14px; flex-shrink: 0;
+    }
+    .release-time { font-size: .8rem; color: var(--muted); }
+    .release-summary { font-size: .9rem; line-height: 1.65; white-space: pre-wrap; color: var(--text); padding: 2px 0; }
+    .release-actions { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
   </style>
 </head>
 <body>
@@ -2232,10 +2248,11 @@ function showReqView(view, projId, modIdx, pageId) {
 function renderRM() {
   const root = document.getElementById('rm-root');
   if (!root) return;
-  if      (rmView === 'project-list')   root.innerHTML = buildProjectList();
-  else if (rmView === 'project-detail') root.innerHTML = buildProjectDetail();
-  else if (rmView === 'module-editor')  root.innerHTML = buildModuleEditor();
-  else if (rmView === 'page-editor')    root.innerHTML = buildPageEditor();
+  if      (rmView === 'project-list')    root.innerHTML = buildProjectList();
+  else if (rmView === 'project-detail')  root.innerHTML = buildProjectDetail();
+  else if (rmView === 'module-editor')   root.innerHTML = buildModuleEditor();
+  else if (rmView === 'page-editor')     root.innerHTML = buildPageEditor();
+  else if (rmView === 'release-history') root.innerHTML = buildReleaseHistory();
   bindRMEvents();
   if (rmView === 'page-editor') bindPageEditorEvents();
 }
@@ -2304,6 +2321,366 @@ function ensureBasicModules(proj) {
   if (changed) saveProjects([...reqProjects]);
 }
 
+// ── Version Release — Diff Engine ────────────────────────────
+// Extensible config table: add new page dimensions here without changing diff logic
+const DIFF_CONFIG = [
+  { section: 'user_flows',     idKey: 'step',   target: 'flow',        detail: f  => ({ actor: f.actor, action: f.action, response: f.response }) },
+  { section: 'filters',        idKey: 'label',  target: 'filter',      detail: f  => ({ type: f.type, options: f.options||'', required: !!f.required }) },
+  { section: 'display_fields', idKey: 'label',  target: 'field',       detail: df => ({ type: df.type, sortable: !!df.sortable }) },
+  { section: 'page_actions',   idKey: 'label',  target: 'page_action', detail: pa => ({ style: pa.style, target_page: pa.target_page||'' }) },
+  { section: 'row_actions',    idKey: 'label',  target: 'row_action',  detail: ra => ({ style: ra.style, effect: ra.effect||'', confirm: !!ra.confirm }) },
+  { section: 'states',         idKey: 'name',   target: 'state',       detail: s  => ({ condition: s.condition, ui_behavior: s.ui_behavior }) },
+  { section: 'constraints',    idKey: 'text',   target: 'constraint',  detail: c  => ({ text: c.text }) },
+  // ↑ 后续新增 page 维度（如 api_endpoints、mock_data 等），在此追加条目即可
+];
+
+// Basic module config diff: add new config keys here without changing diff logic
+const BASIC_DIFF_CONFIG = {
+  basic_register: [
+    { key: 'channels',         target: 'register_channel',  label: '注册渠道' },
+    { key: 'password_min_len', target: 'password_rule',     label: '密码最短长度' },
+    { key: 'password_rules',   target: 'password_rule',     label: '密码强度规则' },
+    { key: 'verification',     target: 'verification',      label: '验证码方式' },
+    { key: 'third_party',      target: 'third_party_login', label: '第三方登录', arrayKey: 'name' },
+    { key: 'profile_fields',   target: 'profile_field',     label: '注册资料',   arrayKey: 'label' },
+    // ↑ 后续注册配置新增字段在此追加
+  ],
+  basic_login: [
+    { key: 'methods',         target: 'login_method',   label: '登录方式' },
+    { key: 'session_days',    target: 'session_policy', label: '会话有效期' },
+    { key: 'multi_device',    target: 'session_policy', label: '多设备登录' },
+    { key: 'two_factor',      target: 'auth_policy',    label: '二次验证' },
+    { key: 'max_attempts',    target: 'lockout_policy', label: '最大失败次数' },
+    { key: 'lockout_minutes', target: 'lockout_policy', label: '锁定时长' },
+    // ↑ 后续登录配置新增字段在此追加
+  ]
+};
+
+function diffSection(baseList, newList, pageName, cfg) {
+  baseList = baseList || [];
+  newList  = newList  || [];
+  const changes = [];
+  // Added items
+  newList.forEach(item => {
+    const key = String(item[cfg.idKey]);
+    if (!baseList.find(b => String(b[cfg.idKey]) === key)) {
+      changes.push({ action: 'add', target: cfg.target, page: pageName,
+        identifier: pageName + '.' + key,
+        detail: cfg.detail(item) });
+    }
+  });
+  // Removed items
+  baseList.forEach(item => {
+    const key = String(item[cfg.idKey]);
+    if (!newList.find(n => String(n[cfg.idKey]) === key)) {
+      changes.push({ action: 'remove', target: cfg.target, page: pageName,
+        identifier: pageName + '.' + key,
+        detail: cfg.detail(item) });
+    }
+  });
+  // Modified items
+  newList.forEach(item => {
+    const key = String(item[cfg.idKey]);
+    const base = baseList.find(b => String(b[cfg.idKey]) === key);
+    if (base && JSON.stringify(cfg.detail(base)) !== JSON.stringify(cfg.detail(item))) {
+      changes.push({ action: 'modify', target: cfg.target, page: pageName,
+        identifier: pageName + '.' + key,
+        detail: cfg.detail(item) });
+    }
+  });
+  return changes;
+}
+
+function diffModulesForChanges(baseMods, newMods) {
+  const changes = [];
+
+  // 1. Basic module config diff
+  newMods.filter(m => m.kind === 'basic').forEach(mod => {
+    const baseMod  = baseMods.find(m => m.id === mod.id);
+    const cfgRules = BASIC_DIFF_CONFIG[mod.id] || [];
+    if (!baseMod) {
+      changes.push({ action: 'add', target: 'module', page: mod.name, identifier: mod.name, detail: {} });
+      return;
+    }
+    const baseConfig = baseMod.config || {};
+    const newConfig  = mod.config || {};
+    cfgRules.forEach(rule => {
+      const bVal = baseConfig[rule.key];
+      const nVal = newConfig[rule.key];
+      if (JSON.stringify(bVal) !== JSON.stringify(nVal)) {
+        changes.push({ action: 'modify', target: rule.target, page: mod.name,
+          identifier: mod.name + '.' + rule.key,
+          detail: { label: rule.label, from: bVal, to: nVal } });
+      }
+    });
+  });
+
+  // 2. Flatten all custom pages
+  const basePages = baseMods.filter(m => m.kind !== 'basic').flatMap(m => (m.pages||[]).map(pg => ({ ...pg, _mod: m.name })));
+  const newPages  = newMods.filter(m => m.kind !== 'basic').flatMap(m => (m.pages||[]).map(pg => ({ ...pg, _mod: m.name })));
+
+  // 3. Added pages
+  newPages.filter(pg => !basePages.find(b => b.id === pg.id)).forEach(pg => {
+    changes.push({ action: 'add', target: 'page', page: pg.name, identifier: pg.name,
+      detail: { type: pg.type, module: pg._mod } });
+  });
+
+  // 4. Removed pages
+  basePages.filter(pg => !newPages.find(n => n.id === pg.id)).forEach(pg => {
+    changes.push({ action: 'remove', target: 'page', page: pg.name, identifier: pg.name,
+      detail: { type: pg.type, module: pg._mod } });
+  });
+
+  // 5. Shared pages: compare all DIFF_CONFIG sections
+  newPages.filter(pg => basePages.find(b => b.id === pg.id)).forEach(pg => {
+    const basePg = basePages.find(b => b.id === pg.id);
+    const schema    = pg.schema     || {};
+    const baseSchema = basePg.schema || {};
+    // Sections on page directly vs under schema
+    const PAGE_SECTIONS = new Set(['user_flows', 'states', 'constraints']);
+    DIFF_CONFIG.forEach(cfg => {
+      const src  = PAGE_SECTIONS.has(cfg.section) ? pg[cfg.section]     : schema[cfg.section];
+      const bSrc = PAGE_SECTIONS.has(cfg.section) ? basePg[cfg.section] : baseSchema[cfg.section];
+      diffSection(bSrc, src, pg.name, cfg).forEach(c => changes.push(c));
+    });
+    // Page-level type/description change
+    if (pg.type !== basePg.type) {
+      changes.push({ action: 'modify', target: 'page', page: pg.name, identifier: pg.name,
+        detail: { from_type: basePg.type, to_type: pg.type } });
+    }
+  });
+
+  return changes;
+}
+
+function formatChangeEntry(c) {
+  const detailLines = Object.entries(c.detail || {})
+    .map(([k, v]) => `        ${k}: ${JSON.stringify(v)}`)
+    .join('\n');
+  return `    - action: ${c.action}
+      target: ${c.target}
+      identifier: ${c.identifier}${detailLines ? '\n      detail:\n' + detailLines : ''}`;
+}
+
+function slugify(str) {
+  return str.replace(/\s+/g, '_').replace(/[^\w\-]/g, '').toLowerCase();
+}
+
+function generateChangeSpec(proj, baseRel, newRel, opts) {
+  const baseMods = baseRel ? (baseRel.snapshot?.modules || []) : [];
+  const newMods  = newRel.snapshot?.modules || [];
+  const changes  = diffModulesForChanges(baseMods, newMods);
+
+  const hasAdds    = changes.some(c => c.action === 'add');
+  const hasRemoves = changes.some(c => c.action === 'remove');
+  const changeType = hasRemoves ? 'breaking_change' : hasAdds ? 'feature_update' : 'enhancement';
+
+  const affectedPages = [...new Set(changes.map(c => c.page))].filter(Boolean);
+  const baseVer = baseRel ? baseRel.version : 'v0';
+  const newVer  = newRel.version;
+  const changeId = `${slugify(proj.name)}-${baseVer}-to-${newVer}`;
+
+  const scopeBlock = affectedPages.length
+    ? `  scope:\n    pages:\n${affectedPages.map(p => '      - ' + p).join('\n')}`
+    : '  scope:\n    pages: []';
+
+  const changesBlock = changes.length
+    ? `  changes:\n${changes.map(formatChangeEntry).join('\n')}`
+    : '  changes: []';
+
+  const testBlock = opts.testCases && opts.testCases.length
+    ? `  test_cases:\n${opts.testCases.map(t => '    - ' + t).join('\n')}`
+    : '  test_cases: []';
+
+  const summaryLine = (newRel.summary || '').split('\n')[0].trim() || '（无摘要）';
+
+  return `\`\`\`yaml
+change_spec:
+  change_id: ${changeId}
+  project: ${slugify(proj.name)}
+  base_version: ${baseVer}
+  new_version: ${newVer}
+  change_type: ${changeType}
+  summary: ${summaryLine}
+${scopeBlock}
+${changesBlock}
+  migration_required: ${opts.migration}
+  backward_compatibility: ${opts.compatible}
+${testBlock}
+\`\`\``;
+}
+
+// ── Version Release — UI ──────────────────────────────────────
+function fmtReleaseTime(iso) {
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function buildReleaseHistory() {
+  const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+  if (!proj) return buildProjectList();
+  const releases = [...(proj.releases || [])].reverse(); // newest first
+
+  const rows = releases.map(rel => `
+    <div class="release-row">
+      <div class="release-row-header">
+        <span class="release-version-badge">${esc(rel.version)}</span>
+        <span class="release-time">${fmtReleaseTime(rel.released_at)}</span>
+      </div>
+      <div class="release-summary" id="summary-${rel.id}">${esc(rel.summary || '（无修改说明）')}</div>
+      <div class="release-actions">
+        <button class="rm-icon-btn" data-edit-summary="${rel.id}">✏️ 编辑说明</button>
+        <button class="rm-icon-btn" data-export-change="${rel.id}">📦 导出 Change 块</button>
+        <button class="rm-icon-btn danger" data-del-release="${rel.id}">🗑️ 删除</button>
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="rm-breadcrumb">
+      <button class="rm-breadcrumb-link" data-nav="project-list">需求管理</button>
+      <span class="rm-breadcrumb-sep">›</span>
+      <button class="rm-breadcrumb-link" data-nav="project-detail">${esc(proj.name)}</button>
+      <span class="rm-breadcrumb-sep">›</span>
+      <span>发布历史</span>
+    </div>
+    <div class="rm-section-header">
+      <div>
+        <div class="rm-section-title">发布历史</div>
+        <div class="rm-section-sub">每次发布都会保存当前完整快照，可对比任意两个版本生成 Change Spec</div>
+      </div>
+      <button class="btn btn-primary" data-publish-proj>🚀 发布新版本</button>
+    </div>
+    ${releases.length === 0
+      ? `<div class="rm-empty" style="padding:60px 24px">
+           <span class="rm-empty-icon">📦</span>
+           <div class="rm-empty-title">还没有发布任何版本</div>
+           <div class="rm-empty-desc">在项目详情页点击「发布版本」完成首次发布</div>
+         </div>`
+      : `<div class="release-list">${rows}</div>`}`;
+}
+
+function openPublishModal(proj) {
+  const nextVer = 'v' + ((proj.releases || []).length + 1);
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">🚀 发布新版本</div>
+      <button class="modal-close" data-modal-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="rm-field-group">
+        <label class="rm-label">版本号 *</label>
+        <input class="rm-input" id="pub-version" value="${esc(nextVer)}" placeholder="如 v1、v1.2.0" />
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">修改说明</label>
+        <textarea class="rm-textarea" id="pub-summary" style="min-height:100px"
+          placeholder="描述本次版本的主要变动，每行一条，如：&#10;新增工单分配功能&#10;修改详情页展示字段&#10;删除旧版报表模块"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>取消</button>
+      <button class="btn btn-primary" id="btn-confirm-publish">发布</button>
+    </div>`);
+
+  document.getElementById('btn-confirm-publish').addEventListener('click', () => {
+    const version = document.getElementById('pub-version').value.trim();
+    if (!version) { toast('请填写版本号', 'error'); return; }
+    const summary = document.getElementById('pub-summary').value.trim();
+    const rel = {
+      id: genId(),
+      version,
+      summary,
+      released_at: new Date().toISOString(),
+      snapshot: { modules: JSON.parse(JSON.stringify(proj.modules || [])) }
+    };
+    if (!proj.releases) proj.releases = [];
+    proj.releases.push(rel);
+    saveProjects([...reqProjects]);
+    closeModal();
+    toast('版本 ' + version + ' 发布成功 🎉', 'success');
+    renderRM();
+  });
+}
+
+function openExportChangeModal(proj, release) {
+  const otherReleases = (proj.releases || []).filter(r => r.id !== release.id);
+  const baseOptions = `<option value="">空白基准（首次发布 / 无对比）</option>` +
+    otherReleases.map(r => `<option value="${r.id}">${esc(r.version)} — ${fmtReleaseTime(r.released_at)}</option>`).join('');
+
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">📦 导出 Change 块 — ${esc(release.version)}</div>
+      <button class="modal-close" data-modal-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="rm-field-group">
+        <label class="rm-label">基准版本（Base Version）</label>
+        <select class="rm-select" id="exp-base">${baseOptions}</select>
+      </div>
+      <div class="rm-form-row">
+        <div class="rm-field-group">
+          <label class="rm-label">是否需要数据迁移</label>
+          <div style="display:flex;gap:16px;padding-top:6px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:.9rem;cursor:pointer">
+              <input type="radio" name="migration" value="yes" checked /> 需要
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:.9rem;cursor:pointer">
+              <input type="radio" name="migration" value="no" /> 不需要
+            </label>
+          </div>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">是否向下兼容</label>
+          <div style="display:flex;gap:16px;padding-top:6px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:.9rem;cursor:pointer">
+              <input type="radio" name="compat" value="yes" checked /> 兼容
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:.9rem;cursor:pointer">
+              <input type="radio" name="compat" value="no" /> 不兼容
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="rm-field-group">
+        <label class="rm-label">测试用例 <span style="font-weight:400;font-size:.82rem">（选填，推荐填写；每行一条）</span></label>
+        <textarea class="rm-textarea" id="exp-tests" style="min-height:80px"
+          placeholder="如：&#10;老数据默认值为空&#10;新增字段在详情页正常展示&#10;排序功能测试通过"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>取消</button>
+      <button class="btn btn-primary" id="btn-confirm-export-change">生成 Change Spec</button>
+    </div>`);
+
+  document.getElementById('btn-confirm-export-change').addEventListener('click', () => {
+    const baseRelId  = document.getElementById('exp-base').value;
+    const baseRel    = baseRelId ? (proj.releases || []).find(r => r.id === baseRelId) : null;
+    const migration  = document.querySelector('input[name="migration"]:checked')?.value === 'yes';
+    const compatible = document.querySelector('input[name="compat"]:checked')?.value === 'yes';
+    const testCases  = (document.getElementById('exp-tests').value || '').split('\n').map(s => s.trim()).filter(Boolean);
+
+    const yaml = generateChangeSpec(proj, baseRel, release, { migration, compatible, testCases });
+
+    openModal(`
+      <div class="modal-header">
+        <div class="modal-title">Change Spec — ${esc(baseRel ? baseRel.version : 'v0')} → ${esc(release.version)}</div>
+        <button class="modal-close" data-modal-close>✕</button>
+      </div>
+      <div class="modal-body" style="padding:0">
+        <pre id="change-spec-output" style="background:var(--bg3);padding:20px 24px;border-radius:0;font-size:.82rem;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-all;max-height:60vh;overflow-y:auto">${esc(yaml)}</pre>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal-close>关闭</button>
+        <button class="btn btn-primary" id="btn-copy-change-spec">📋 复制</button>
+      </div>`);
+
+    document.getElementById('btn-copy-change-spec').addEventListener('click', () => {
+      navigator.clipboard.writeText(yaml).then(() => toast('已复制到剪贴板', 'success')).catch(() => toast('复制失败，请手动选中', 'error'));
+    });
+  });
+}
+
 // ── Project Detail ────────────────────────────────────────────
 function buildProjectDetail() {
   const proj = reqProjects.find(p => p.id === rmCurrentProjId);
@@ -2360,6 +2737,8 @@ function buildProjectDetail() {
       </div>
       <div class="rm-header-actions">
         <button class="btn-export" id="btn-export-md">📤 导出 Markdown</button>
+        <button class="btn btn-ghost" data-release-history>📋 发布历史</button>
+        <button class="btn btn-primary" data-publish-proj>🚀 发布版本</button>
         <button class="btn btn-ghost" data-edit-proj="${proj.id}">✏️ 编辑项目</button>
       </div>
     </div>
@@ -3272,10 +3651,68 @@ function bindRMEvents() {
     });
   });
 
-  // Export
+  // Export Markdown
   document.getElementById('btn-export-md')?.addEventListener('click', () => {
     const proj = reqProjects.find(p => p.id === rmCurrentProjId);
     openExportModal(proj);
+  });
+
+  // ── Version release ──────────────────────────────────────
+  root.querySelector('[data-publish-proj]')?.addEventListener('click', () => {
+    const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+    if (proj) openPublishModal(proj);
+  });
+
+  root.querySelector('[data-release-history]')?.addEventListener('click', () => {
+    showReqView('release-history');
+  });
+
+  root.querySelectorAll('[data-export-change]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+      const rel  = (proj?.releases || []).find(r => r.id === btn.dataset.exportChange);
+      if (proj && rel) openExportChangeModal(proj, rel);
+    });
+  });
+
+  root.querySelectorAll('[data-edit-summary]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const relId     = btn.dataset.editSummary;
+      const summaryEl = document.getElementById('summary-' + relId);
+      if (!summaryEl) return;
+      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+      const rel  = (proj?.releases || []).find(r => r.id === relId);
+      if (!rel) return;
+      // Swap text div for textarea
+      const ta = document.createElement('textarea');
+      ta.className = 'rm-textarea';
+      ta.value = rel.summary || '';
+      ta.style.marginBottom = '8px';
+      summaryEl.replaceWith(ta);
+      // Swap edit button for save button
+      btn.textContent = '💾 保存';
+      btn.removeAttribute('data-edit-summary');
+      btn.dataset.saveSummary = relId;
+      btn.addEventListener('click', function onSave() {
+        rel.summary = ta.value.trim();
+        saveProjects([...reqProjects]);
+        toast('说明已保存', 'success');
+        renderRM();
+        btn.removeEventListener('click', onSave);
+      }, { once: true });
+    });
+  });
+
+  root.querySelectorAll('[data-del-release]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!confirm('确认删除该版本记录？快照数据将一并删除。')) return;
+      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+      if (!proj) return;
+      proj.releases = (proj.releases || []).filter(r => r.id !== btn.dataset.delRelease);
+      saveProjects([...reqProjects]);
+      renderRM();
+      toast('版本已删除', 'success');
+    });
   });
 
   // ── Basic module config save ──────────────────────────────
