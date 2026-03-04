@@ -386,7 +386,7 @@
     }
     .btn:hover { opacity: .85; transform: translateY(-1px); }
     .btn:active { transform: scale(.97); }
-    .btn-primary { background: var(--client); color: #000; }
+    .btn-primary { background: var(--client); color: #ffffff; }
     .btn-ghost {
       background: var(--bg3);
       color: var(--text);
@@ -1326,8 +1326,8 @@
 
     /* Buttons */
     .btn { font-family: var(--font); font-size: .85rem; font-weight: 600; padding: 8px 16px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; transition: background .2s, border-color .2s; }
-    .btn-primary { background: var(--client); color: #0d1117; border-color: var(--client); }
-    .btn-primary:hover { background: #79b8ff; border-color: #79b8ff; }
+    .btn-primary { background: var(--client); color: #ffffff; border-color: var(--client); }
+    .btn-primary:hover { background: #0860c8; border-color: #0860c8; }
     .btn-ghost { background: var(--bg3); color: var(--text); border-color: var(--border); }
     .btn-ghost:hover { background: var(--bg); border-color: var(--client); }
 
@@ -4532,6 +4532,44 @@ function openPageModal(pageId, defaultParentId) {
 }
 
 // ── Export Markdown ───────────────────────────────────────────
+function renderBasicModuleMarkdown(mod) {
+  let md = '';
+  const cfg = mod.config || {};
+
+  if (mod.id === 'basic_register') {
+    const chLabels = { email: '邮箱', phone: '手机号' };
+    const channels = (cfg.channels || []).map(c => chLabels[c] || c).join('、') || '未配置';
+    const pwRules = [];
+    if (cfg.password_min_len) pwRules.push(`最短长度 ${cfg.password_min_len} 位`);
+    if ((cfg.password_rules || []).includes('uppercase')) pwRules.push('须含大写字母');
+    if ((cfg.password_rules || []).includes('number'))    pwRules.push('须含数字');
+    if ((cfg.password_rules || []).includes('special'))   pwRules.push('须含特殊字符');
+    const verif = cfg.verification === 'none' ? '无需验证' : '需要验证码';
+    const tp = (cfg.third_party || []).map(t => t.name).join('、') || '无';
+    const pf = (cfg.profile_fields || []).map(f => `${f.label}（${f.type}）`).join('、') || '无';
+
+    md += `**注册渠道：** ${channels}\n\n`;
+    md += `**密码规则：** ${pwRules.join('、') || '无特殊要求'}\n\n`;
+    md += `**验证码：** ${verif}\n\n`;
+    md += `**第三方登录：** ${tp}\n\n`;
+    md += `**必填注册资料：** ${pf}\n\n`;
+  }
+
+  if (mod.id === 'basic_login') {
+    const methodLabels = { email_password: '邮箱 + 密码', phone_sms: '手机号 + 验证码', third_party: '第三方授权' };
+    const methods = (cfg.methods || []).map(m => methodLabels[m] || m).join('、') || '未配置';
+    const session = cfg.session_days === 0 ? '永久' : `${cfg.session_days || 30} 天`;
+
+    md += `**登录方式：** ${methods}\n\n`;
+    md += `**会话有效期：** ${session}\n\n`;
+    md += `**多设备同时登录：** ${cfg.multi_device !== false ? '允许' : '不允许'}\n\n`;
+    md += `**二次验证（2FA）：** ${cfg.two_factor ? '开启' : '不开启'}\n\n`;
+    md += `**登录失败锁定：** 最多失败 ${cfg.max_attempts || 5} 次，锁定 ${cfg.lockout_minutes || 30} 分钟\n\n`;
+  }
+
+  return md;
+}
+
 function generateMarkdown(proj) {
   let md = `# 产品需求文档：${proj.name}\n\n`;
   md += `**描述：** ${proj.description}\n`;
@@ -4539,7 +4577,15 @@ function generateMarkdown(proj) {
   md += `**生成时间：** ${new Date().toLocaleString('zh-CN')}\n\n---\n\n`;
 
   (proj.modules || []).forEach((mod, mi) => {
-    md += `## 模块 ${mi + 1}：${mod.name}\n\n`;
+    const sectionLabel = mod.kind === 'basic' ? `## 基础模块：${mod.name}\n\n` : `## 模块 ${mi + 1}：${mod.name}\n\n`;
+    md += sectionLabel;
+
+    if (mod.kind === 'basic') {
+      md += renderBasicModuleMarkdown(mod);
+      md += `---\n\n`;
+      return;
+    }
+
     if (mod.description) md += `${mod.description}\n\n`;
     if (mod.core_flow)   md += `**核心业务流：**\n${mod.core_flow}\n\n`;
     md += `---\n\n`;
@@ -4626,7 +4672,7 @@ function generateMarkdown(proj) {
   });
 
   md += `*本文档由 AxisQ 需求管理工具生成*\n`;
-  md += `*请根据以上产品行为描述，自主设计：数据库表结构、API 接口、服务端业务逻辑*\n`;
+  md += `*请根据以上产品行为描述，自主设计 web 应用：包括后端的数据库表结构、API 接口、服务端业务逻辑、前端的页面搭建*\n`;
   return md;
 }
 
