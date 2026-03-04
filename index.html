@@ -2304,7 +2304,13 @@ function getDefaultBasicModules() {
                 verification: 'required', third_party: [], profile_fields: [] } },
     { id: 'basic_login', kind: 'basic', name: '登录', icon: '🔑',
       config: { methods: ['email_password'], session_days: 30,
-                multi_device: true, two_factor: false, max_attempts: 5, lockout_minutes: 30 } }
+                multi_device: true, two_factor: false, max_attempts: 5, lockout_minutes: 30 } },
+    { id: 'basic_i18n', kind: 'basic', name: '多语言', icon: '🌐',
+      config: { default_language: 'zh-CN', supported_languages: ['zh-CN'], fallback_language: 'en-US', content_i18n: false } },
+    { id: 'basic_account', kind: 'basic', name: '子账号与权限', icon: '👥',
+      config: { enabled: true, max_sub_accounts: 10, permission_model: 'rbac', roles: [], allow_custom_roles: false, invite_methods: ['email'], data_isolation: false } },
+    { id: 'basic_region', kind: 'basic', name: '国家地区', icon: '🗺️',
+      config: { multi_region: false, regions: [], default_region: '', data_isolation: 'full', region_detection: 'ip', compliance: [] } },
   ];
 }
 
@@ -2320,6 +2326,16 @@ function ensureBasicModules(proj) {
   });
   if (changed) saveProjects([...reqProjects]);
 }
+
+// ── Language list for basic_i18n ─────────────────────────────
+const LANGUAGES = [
+  { code: 'zh-CN', label: '简体中文' }, { code: 'zh-TW', label: '繁體中文' },
+  { code: 'en-US', label: 'English' },  { code: 'ja-JP', label: '日本語' },
+  { code: 'ko-KR', label: '한국어' },   { code: 'es',    label: 'Español' },
+  { code: 'fr',    label: 'Français' }, { code: 'de',    label: 'Deutsch' },
+  { code: 'pt',    label: 'Português' },{ code: 'ar',    label: 'العربية' },
+  { code: 'th',    label: 'ภาษาไทย' }, { code: 'hi',    label: 'हिन्दी' },
+];
 
 // ── Version Release — Diff Engine ────────────────────────────
 // Extensible config table: add new page dimensions here without changing diff logic
@@ -2353,7 +2369,30 @@ const BASIC_DIFF_CONFIG = {
     { key: 'max_attempts',    target: 'lockout_policy', label: '最大失败次数' },
     { key: 'lockout_minutes', target: 'lockout_policy', label: '锁定时长' },
     // ↑ 后续登录配置新增字段在此追加
-  ]
+  ],
+  basic_i18n: [
+    { key: 'default_language',    target: 'i18n_setting', label: '默认语言' },
+    { key: 'supported_languages', target: 'i18n_setting', label: '支持语言' },
+    { key: 'fallback_language',   target: 'i18n_setting', label: '回退语言' },
+    { key: 'content_i18n',        target: 'i18n_setting', label: '内容多语言' },
+  ],
+  basic_account: [
+    { key: 'enabled',            target: 'account_policy', label: '子账号开关' },
+    { key: 'max_sub_accounts',   target: 'account_policy', label: '最大子账号数' },
+    { key: 'permission_model',   target: 'account_policy', label: '权限模型' },
+    { key: 'roles',              target: 'role',           label: '角色', arrayKey: 'name' },
+    { key: 'allow_custom_roles', target: 'account_policy', label: '用户可编辑角色' },
+    { key: 'invite_methods',     target: 'account_policy', label: '邀请方式' },
+    { key: 'data_isolation',     target: 'account_policy', label: '数据隔离' },
+  ],
+  basic_region: [
+    { key: 'multi_region',     target: 'region_policy', label: '多区域' },
+    { key: 'regions',          target: 'region',        label: '区域列表', arrayKey: 'code' },
+    { key: 'default_region',   target: 'region_policy', label: '默认区域' },
+    { key: 'data_isolation',   target: 'region_policy', label: '数据隔离模式' },
+    { key: 'region_detection', target: 'region_policy', label: '区域判断方式' },
+    { key: 'compliance',       target: 'compliance',    label: '合规要求' },
+  ],
 };
 
 function diffSection(baseList, newList, pageName, cfg) {
@@ -2750,7 +2789,7 @@ function buildProjectDetail() {
     <div class="rm-section-header" style="margin-top:8px">
       <div>
         <div class="rm-section-title">基础模块</div>
-        <div class="rm-section-sub">注册、登录等预置模块，使用标准化配置，不可新建或删除</div>
+        <div class="rm-section-sub">注册、登录、多语言、子账号与权限、国家地区等预置模块，使用标准化配置，不可新建或删除</div>
       </div>
     </div>
     <div class="rm-module-list" style="margin-bottom:28px">
@@ -3006,6 +3045,228 @@ function buildBasicModuleEditor(mod) {
             <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
               <input type="checkbox" id="login-2fa" ${cfg.two_factor?'checked':''} /> 开启二次验证（2FA）
             </label>
+          </div>
+        </div>
+
+        <div class="rm-form-actions">
+          <button class="btn btn-primary" data-save-basic-config="${mod.id}">保存配置</button>
+        </div>
+      </div>`;
+  }
+
+  if (mod.id === 'basic_i18n') {
+    const supported = cfg.supported_languages || [];
+    const langOptions = LANGUAGES.map(l =>
+      `<option value="${l.code}" ${cfg.default_language===l.code?'selected':''}>${l.label}</option>`).join('');
+    const fallbackOptions = LANGUAGES.map(l =>
+      `<option value="${l.code}" ${cfg.fallback_language===l.code?'selected':''}>${l.label}</option>`).join('');
+    const langChecks = LANGUAGES.map((l, i) => `
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:.88rem;min-width:130px">
+        <input type="checkbox" data-lang-check value="${l.code}" ${supported.includes(l.code)?'checked':''} />
+        ${l.label}
+      </label>`).join('');
+    return breadcrumb + `
+      <div class="rm-add-module-form" style="margin-bottom:20px">
+        <div class="rm-section-title" style="margin-bottom:18px">多语言配置</div>
+
+        <div class="rm-form-row" style="margin-bottom:18px">
+          <div class="rm-field-group">
+            <label class="rm-label">默认语言</label>
+            <select class="rm-select" id="i18n-default">${langOptions}</select>
+          </div>
+          <div class="rm-field-group">
+            <label class="rm-label">回退语言</label>
+            <select class="rm-select" id="i18n-fallback">${fallbackOptions}</select>
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <label class="rm-label">支持的语言（可多选）</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px 16px;padding-top:6px">
+            ${langChecks}
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <label class="rm-label">其他选项</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem;padding-top:4px">
+            <input type="checkbox" id="i18n-content" ${cfg.content_i18n?'checked':''} />
+            用户生成内容支持多语言
+          </label>
+        </div>
+
+        <div class="rm-form-actions">
+          <button class="btn btn-primary" data-save-basic-config="${mod.id}">保存配置</button>
+        </div>
+      </div>`;
+  }
+
+  if (mod.id === 'basic_account') {
+    const roles = cfg.roles || [];
+    const inviteMethods = cfg.invite_methods || (cfg.invite_method ? [cfg.invite_method] : ['email']);
+    const roleRows = roles.map((r, i) => `
+      <div class="basic-list-row" data-role-idx="${i}">
+        <input class="rm-input" style="flex:1" value="${esc(r.name||'')}" data-role-name="${i}" placeholder="角色名称，如：运营" />
+        <input class="rm-input" style="flex:2" value="${esc(r.desc||'')}" data-role-desc="${i}" placeholder="角色描述（可选）" />
+        <button class="rm-icon-btn danger" style="flex-shrink:0" data-del-role="${i}">✕</button>
+      </div>`).join('');
+    return breadcrumb + `
+      <div class="rm-add-module-form" style="margin-bottom:20px">
+        <div class="rm-section-title" style="margin-bottom:18px">子账号与权限配置</div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+            <input type="checkbox" id="acct-enabled" ${cfg.enabled!==false?'checked':''} />
+            启用子账号管理
+          </label>
+        </div>
+
+        <div class="rm-form-row" style="margin-bottom:18px">
+          <div class="rm-field-group">
+            <label class="rm-label">最大子账号数量</label>
+            <input class="rm-input" type="number" id="acct-max" min="1" max="9999" value="${cfg.max_sub_accounts||10}" style="width:130px" />
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <label class="rm-label">权限模型</label>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;padding-top:4px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="radio" name="acct-perm" value="rbac" ${(cfg.permission_model||'rbac')==='rbac'?'checked':''} /> RBAC（角色权限）
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="radio" name="acct-perm" value="simple" ${cfg.permission_model==='simple'?'checked':''} /> 简单权限
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="radio" name="acct-perm" value="custom" ${cfg.permission_model==='custom'?'checked':''} /> 自定义
+            </label>
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <label class="rm-label">邀请方式（可多选）</label>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;padding-top:4px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" data-invite-method value="email" ${inviteMethods.includes('email')?'checked':''} /> 邮件邀请
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" data-invite-method value="link" ${inviteMethods.includes('link')?'checked':''} /> 链接邀请
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" data-invite-method value="manual" ${inviteMethods.includes('manual')?'checked':''} /> 手动创建
+            </label>
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+            <input type="checkbox" id="acct-isolation" ${cfg.data_isolation?'checked':''} />
+            子账号数据相互隔离
+          </label>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <label class="rm-label" style="margin:0">自定义角色</label>
+            <button class="rm-icon-btn" id="btn-add-role">＋ 添加角色</button>
+          </div>
+          <div style="margin-bottom:10px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem;color:var(--muted)">
+              <input type="checkbox" id="acct-allow-custom-roles" ${cfg.allow_custom_roles?'checked':''} />
+              允许用户新增或编辑自定义角色
+            </label>
+          </div>
+          <div id="role-list" style="display:flex;flex-direction:column;gap:6px">
+            ${roleRows || '<div style="color:var(--muted);font-size:.84rem;padding:8px 0">暂未配置自定义角色</div>'}
+          </div>
+        </div>
+
+        <div class="rm-form-actions" style="margin-top:20px">
+          <button class="btn btn-primary" data-save-basic-config="${mod.id}">保存配置</button>
+        </div>
+      </div>`;
+  }
+
+  if (mod.id === 'basic_region') {
+    const regions = cfg.regions || [];
+    const compliance = cfg.compliance || [];
+    const regionRows = regions.map((r, i) => `
+      <div class="basic-list-row" data-region-idx="${i}">
+        <input class="rm-input" style="flex:2" value="${esc(r.name||'')}" data-region-name="${i}" placeholder="地区名称，如：中国大陆" />
+        <input class="rm-input" style="flex:1" value="${esc(r.code||'')}" data-region-code="${i}" placeholder="代码，如：CN" />
+        <input class="rm-input" style="flex:2" value="${esc(r.datacenter||'')}" data-region-dc="${i}" placeholder="数据中心，如：aliyun-cn" />
+        <button class="rm-icon-btn danger" style="flex-shrink:0" data-del-region="${i}">✕</button>
+      </div>`).join('');
+    const complyRows = compliance.map((c, i) => `
+      <div class="basic-list-row" data-comply-idx="${i}">
+        <input class="rm-input" style="flex:1" value="${esc(c||'')}" data-comply-val="${i}" placeholder="如：GDPR、CCPA、个人信息保护法" />
+        <button class="rm-icon-btn danger" style="flex-shrink:0" data-del-comply="${i}">✕</button>
+      </div>`).join('');
+    return breadcrumb + `
+      <div class="rm-add-module-form" style="margin-bottom:20px">
+        <div class="rm-section-title" style="margin-bottom:18px">国家地区配置</div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+            <input type="checkbox" id="region-multi" ${cfg.multi_region?'checked':''} />
+            启用多区域支持
+          </label>
+        </div>
+
+        <div class="rm-form-row" style="margin-bottom:18px">
+          <div class="rm-field-group">
+            <label class="rm-label">默认区域</label>
+            <input class="rm-input" id="region-default" value="${esc(cfg.default_region||'')}" placeholder="如：CN" style="width:160px" />
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <label class="rm-label">数据隔离模式</label>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;padding-top:4px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="radio" name="region-iso" value="full" ${(cfg.data_isolation||'full')==='full'?'checked':''} /> 完全隔离
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="radio" name="region-iso" value="partial" ${cfg.data_isolation==='partial'?'checked':''} /> 部分共享
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="radio" name="region-iso" value="none" ${cfg.data_isolation==='none'?'checked':''} /> 不隔离
+            </label>
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <label class="rm-label">区域识别方式</label>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;padding-top:4px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="radio" name="region-detect" value="ip" ${(cfg.region_detection||'ip')==='ip'?'checked':''} /> IP 自动判断
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="radio" name="region-detect" value="user" ${cfg.region_detection==='user'?'checked':''} /> 用户手动选择
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+              <input type="radio" name="region-detect" value="admin" ${cfg.region_detection==='admin'?'checked':''} /> 管理员分配
+            </label>
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <label class="rm-label" style="margin:0">支持的区域</label>
+            <button class="rm-icon-btn" id="btn-add-region">＋ 添加区域</button>
+          </div>
+          <div id="region-list" style="display:flex;flex-direction:column;gap:6px">
+            ${regionRows || '<div style="color:var(--muted);font-size:.84rem;padding:8px 0">暂未配置区域</div>'}
+          </div>
+        </div>
+
+        <div class="rm-field-group" style="margin-bottom:18px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <label class="rm-label" style="margin:0">合规要求</label>
+            <button class="rm-icon-btn" id="btn-add-comply">＋ 添加合规项</button>
+          </div>
+          <div id="comply-list" style="display:flex;flex-direction:column;gap:6px">
+            ${complyRows || '<div style="color:var(--muted);font-size:.84rem;padding:8px 0">暂未配置合规要求</div>'}
           </div>
         </div>
 
@@ -3770,6 +4031,48 @@ function bindRMEvents() {
           max_attempts:     parseInt(document.getElementById('login-max-attempts')?.value)  || 5,
           lockout_minutes:  parseInt(document.getElementById('login-lockout')?.value)       || 30
         };
+      } else if (modId === 'basic_i18n') {
+        const supported_languages = [...root.querySelectorAll('[data-lang-check]:checked')].map(cb => cb.value);
+        mod.config = {
+          default_language:  document.getElementById('i18n-default')?.value  || 'zh-CN',
+          supported_languages,
+          fallback_language: document.getElementById('i18n-fallback')?.value || 'en-US',
+          content_i18n:      !!document.getElementById('i18n-content')?.checked,
+        };
+      } else if (modId === 'basic_account') {
+        const roles = [...root.querySelectorAll('.basic-list-row[data-role-idx]')].map(row => ({
+          id: genId(),
+          name: (row.querySelector('[data-role-name]')?.value || '').trim(),
+          desc: (row.querySelector('[data-role-desc]')?.value || '').trim()
+        })).filter(r => r.name);
+        const invite_methods = [...root.querySelectorAll('[data-invite-method]:checked')].map(cb => cb.value);
+        mod.config = {
+          enabled:            !!root.querySelector('#acct-enabled')?.checked,
+          max_sub_accounts:   parseInt(root.querySelector('#acct-max')?.value) || 10,
+          permission_model:   root.querySelector('[name="acct-perm"]:checked')?.value || 'rbac',
+          roles,
+          allow_custom_roles: !!root.querySelector('#acct-allow-custom-roles')?.checked,
+          invite_methods,
+          data_isolation:     !!root.querySelector('#acct-isolation')?.checked,
+        };
+      } else if (modId === 'basic_region') {
+        const regions = [...root.querySelectorAll('.basic-list-row[data-region-idx]')].map(row => ({
+          id: genId(),
+          name:       (row.querySelector('[data-region-name]')?.value || '').trim(),
+          code:       (row.querySelector('[data-region-code]')?.value || '').trim(),
+          datacenter: (row.querySelector('[data-region-dc]')?.value   || '').trim()
+        })).filter(r => r.name);
+        const compliance = [...root.querySelectorAll('.basic-list-row[data-comply-idx]')].map(row =>
+          (row.querySelector('[data-comply-val]')?.value || '').trim()
+        ).filter(Boolean);
+        mod.config = {
+          multi_region:     !!root.querySelector('#region-multi')?.checked,
+          regions,
+          default_region:   (root.querySelector('#region-default')?.value || '').trim(),
+          data_isolation:   root.querySelector('[name="region-iso"]:checked')?.value    || 'full',
+          region_detection: root.querySelector('[name="region-detect"]:checked')?.value || 'ip',
+          compliance,
+        };
       }
       saveProjects([...reqProjects]);
       toast('配置已保存', 'success');
@@ -3836,6 +4139,70 @@ function bindRMEvents() {
     row.querySelector('[data-del-pf]').addEventListener('click', () => row.remove());
   });
   root.querySelectorAll('[data-del-pf]').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.basic-list-row').remove());
+  });
+
+  // Basic module dynamic rows: add/delete roles (basic_account)
+  document.getElementById('btn-add-role')?.addEventListener('click', () => {
+    const list = document.getElementById('role-list');
+    if (!list) return;
+    // Remove placeholder text if present
+    list.querySelectorAll('div:not(.basic-list-row)').forEach(el => el.remove());
+    const idx = list.querySelectorAll('.basic-list-row').length;
+    const row = document.createElement('div');
+    row.className = 'basic-list-row';
+    row.dataset.roleIdx = idx;
+    row.style.cssText = 'display:flex;gap:6px;align-items:center';
+    row.innerHTML = `
+      <input class="rm-input" style="flex:1" data-role-name="${idx}" placeholder="角色名称，如：运营" />
+      <input class="rm-input" style="flex:2" data-role-desc="${idx}" placeholder="角色描述（可选）" />
+      <button class="rm-icon-btn danger" style="flex-shrink:0" data-del-role="${idx}">✕</button>`;
+    list.appendChild(row);
+    row.querySelector('[data-del-role]').addEventListener('click', () => row.remove());
+  });
+  root.querySelectorAll('[data-del-role]').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.basic-list-row').remove());
+  });
+
+  // Basic module dynamic rows: add/delete regions (basic_region)
+  document.getElementById('btn-add-region')?.addEventListener('click', () => {
+    const list = document.getElementById('region-list');
+    if (!list) return;
+    list.querySelectorAll('div:not(.basic-list-row)').forEach(el => el.remove());
+    const idx = list.querySelectorAll('.basic-list-row').length;
+    const row = document.createElement('div');
+    row.className = 'basic-list-row';
+    row.dataset.regionIdx = idx;
+    row.style.cssText = 'display:flex;gap:6px;align-items:center';
+    row.innerHTML = `
+      <input class="rm-input" style="flex:2" data-region-name="${idx}" placeholder="地区名称，如：中国大陆" />
+      <input class="rm-input" style="flex:1" data-region-code="${idx}" placeholder="代码，如：CN" />
+      <input class="rm-input" style="flex:2" data-region-dc="${idx}" placeholder="数据中心，如：aliyun-cn" />
+      <button class="rm-icon-btn danger" style="flex-shrink:0" data-del-region="${idx}">✕</button>`;
+    list.appendChild(row);
+    row.querySelector('[data-del-region]').addEventListener('click', () => row.remove());
+  });
+  root.querySelectorAll('[data-del-region]').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.basic-list-row').remove());
+  });
+
+  // Basic module dynamic rows: add/delete compliance (basic_region)
+  document.getElementById('btn-add-comply')?.addEventListener('click', () => {
+    const list = document.getElementById('comply-list');
+    if (!list) return;
+    list.querySelectorAll('div:not(.basic-list-row)').forEach(el => el.remove());
+    const idx = list.querySelectorAll('.basic-list-row').length;
+    const row = document.createElement('div');
+    row.className = 'basic-list-row';
+    row.dataset.complyIdx = idx;
+    row.style.cssText = 'display:flex;gap:6px;align-items:center';
+    row.innerHTML = `
+      <input class="rm-input" style="flex:1" data-comply-val="${idx}" placeholder="如：GDPR、CCPA、个人信息保护法" />
+      <button class="rm-icon-btn danger" style="flex-shrink:0" data-del-comply="${idx}">✕</button>`;
+    list.appendChild(row);
+    row.querySelector('[data-del-comply]').addEventListener('click', () => row.remove());
+  });
+  root.querySelectorAll('[data-del-comply]').forEach(btn => {
     btn.addEventListener('click', () => btn.closest('.basic-list-row').remove());
   });
 
@@ -4565,6 +4932,44 @@ function renderBasicModuleMarkdown(mod) {
     md += `**多设备同时登录：** ${cfg.multi_device !== false ? '允许' : '不允许'}\n\n`;
     md += `**二次验证（2FA）：** ${cfg.two_factor ? '开启' : '不开启'}\n\n`;
     md += `**登录失败锁定：** 最多失败 ${cfg.max_attempts || 5} 次，锁定 ${cfg.lockout_minutes || 30} 分钟\n\n`;
+  }
+
+  if (mod.id === 'basic_i18n') {
+    const findLabel = code => (LANGUAGES.find(l => l.code === code) || {}).label || code;
+    md += `**默认语言：** ${findLabel(cfg.default_language || 'zh-CN')}\n\n`;
+    md += `**支持的语言：** ${(cfg.supported_languages || []).map(findLabel).join('、') || '未配置'}\n\n`;
+    md += `**回退语言：** ${findLabel(cfg.fallback_language || 'en-US')}\n\n`;
+    md += `**用户内容多语言：** ${cfg.content_i18n ? '支持' : '不支持'}\n\n`;
+  }
+
+  if (mod.id === 'basic_account') {
+    const pmLabels = { rbac: 'RBAC 角色权限', simple: '简单权限', custom: '自定义' };
+    const imLabels = { email: '邮件邀请', link: '链接邀请', manual: '手动创建' };
+    const invMethods = (cfg.invite_methods || (cfg.invite_method ? [cfg.invite_method] : [])).filter(Boolean);
+    md += `**子账号管理：** ${cfg.enabled !== false ? '启用' : '禁用'}\n\n`;
+    md += `**最大子账号数：** ${cfg.max_sub_accounts || 10}\n\n`;
+    md += `**权限模型：** ${pmLabels[cfg.permission_model] || cfg.permission_model || 'RBAC 角色权限'}\n\n`;
+    if ((cfg.roles || []).length > 0) {
+      md += `**自定义角色：** ${cfg.roles.map(r => r.name + (r.desc ? '（' + r.desc + '）' : '')).join('、')}\n\n`;
+    }
+    md += `**用户可编辑角色：** ${cfg.allow_custom_roles ? '允许' : '不允许'}\n\n`;
+    md += `**邀请方式：** ${invMethods.map(m => imLabels[m] || m).join('、') || '未配置'}\n\n`;
+    md += `**子账号数据隔离：** ${cfg.data_isolation ? '隔离' : '不隔离'}\n\n`;
+  }
+
+  if (mod.id === 'basic_region') {
+    const diLabels = { full: '完全隔离', partial: '部分共享', none: '不隔离' };
+    const rdLabels = { ip: 'IP 自动判断', user: '用户手动选择', admin: '管理员分配' };
+    md += `**多区域支持：** ${cfg.multi_region ? '启用' : '禁用'}\n\n`;
+    if ((cfg.regions || []).length > 0) {
+      md += `**支持区域：** ${cfg.regions.map(r => r.name + (r.code ? '(' + r.code + ')' : '')).join('、')}\n\n`;
+    }
+    md += `**默认区域：** ${cfg.default_region || '未配置'}\n\n`;
+    md += `**数据隔离：** ${diLabels[cfg.data_isolation] || cfg.data_isolation || '完全隔离'}\n\n`;
+    md += `**区域识别：** ${rdLabels[cfg.region_detection] || cfg.region_detection || 'IP 自动判断'}\n\n`;
+    if ((cfg.compliance || []).length > 0) {
+      md += `**合规要求：** ${cfg.compliance.join('、')}\n\n`;
+    }
   }
 
   return md;
