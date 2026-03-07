@@ -1420,8 +1420,7 @@
       <div class="nav-group">
         <div class="nav-group-label">Web 应用</div>
         <ul class="nav-items">
-          <li><button class="nav-item active" data-page="intro">📊 运行介绍</button></li>
-          <li><button class="nav-item"        data-page="req" >📋 需求管理</button></li>
+          <li><button class="nav-item active" data-page="req">📋 需求管理</button></li>
         </ul>
       </div>
     </nav>
@@ -1433,7 +1432,7 @@
     <!-- Mobile topbar -->
     <div class="mobile-topbar">
       <button class="mobile-menu-btn" aria-label="打开菜单">☰</button>
-      <span class="mobile-title" id="mobile-title">运行介绍</span>
+      <span class="mobile-title" id="mobile-title">需求管理</span>
     </div>
 
     <!-- ─── Page: 运行介绍 ─────────────────────────────── -->
@@ -2190,16 +2189,16 @@ renderScene();
 ============================================================ -->
 <script>
 // ── Page-level navigation ─────────────────────────────────────
-let currentPage = 'intro';
+let currentPage = 'req';
 
 function navigateTo(page) {
   currentPage = page;
   document.querySelectorAll('.nav-item').forEach(b =>
     b.classList.toggle('active', b.dataset.page === page)
   );
-  document.getElementById('page-intro').classList.toggle('hidden', page !== 'intro');
+  document.getElementById('page-intro').classList.toggle('hidden', true);
   document.getElementById('page-req').classList.toggle('hidden', page !== 'req');
-  document.getElementById('mobile-title').textContent = page === 'intro' ? '运行介绍' : '需求管理';
+  document.getElementById('mobile-title').textContent = '需求管理';
   closeSidebar();
   if (page === 'req') renderRM();
 }
@@ -2219,7 +2218,8 @@ let rmView          = 'project-list';
 let rmCurrentProjId = null;
 let rmCurrentModIdx = null;
 let rmCurrentPageId = null;
-let rmPageEditorTab = 'flows';   // 'flows' | 'schema' | 'states' | 'constraints'
+let rmPageEditorTab = 'schema';  // 'schema' | 'flows' | 'states' | 'constraints'
+let rmProjTab       = 'custom';  // 'basic' | 'custom' | 'ui-spec'
 let rmCollapsedPages = new Set();  // ids of collapsed page tree nodes; empty = all expanded
 let reqProjects     = [];
 
@@ -2253,6 +2253,7 @@ function renderRM() {
   else if (rmView === 'module-editor')   root.innerHTML = buildModuleEditor();
   else if (rmView === 'page-editor')     root.innerHTML = buildPageEditor();
   else if (rmView === 'release-history') root.innerHTML = buildReleaseHistory();
+  else if (rmView === 'ui-spec-editor')  root.innerHTML = buildUISpecEditor();
   bindRMEvents();
   if (rmView === 'page-editor') bindPageEditorEvents();
 }
@@ -2575,6 +2576,7 @@ function buildReleaseHistory() {
       <div class="release-actions">
         <button class="rm-icon-btn" data-edit-summary="${rel.id}">✏️ 编辑说明</button>
         <button class="rm-icon-btn" data-export-change="${rel.id}">📦 导出 Change 块</button>
+        <button class="rm-icon-btn" data-export-snap-md="${rel.id}">📄 导出原始需求</button>
         <button class="rm-icon-btn danger" data-del-release="${rel.id}">🗑️ 删除</button>
       </div>
     </div>`).join('');
@@ -2724,6 +2726,360 @@ function openExportChangeModal(proj, release) {
   });
 }
 
+// ── UI Spec helpers ───────────────────────────────────────────
+function getDefaultUIConfig() {
+  return {
+    theme: 'light',
+    color_system: { primary: '#0969da', secondary: '#8250df', success: '#1a7f37', warning: '#bf8700', error: '#cf222e', background: '#f6f8fa', surface: '#ffffff', text: '#1f2328' },
+    typography:   { font_family: 'system', body_size: '14', heading_scale: '1.25', line_height: '1.6', heading_weight: '600' },
+    spacing:      { base_unit: '8' },
+    layout:       { max_width: '1440', sidebar_width: '240', grid_columns: '12' },
+    component_style: { border_radius: 'md', shadow: 'sm', button_style: 'rounded' },
+    table_standard:  { page_size: '20', alternating_rows: true, show_borders: true, sticky_header: true, sortable: true },
+    form_standard:   { label_position: 'top', required_indicator: '*', validation_timing: 'blur' },
+    interaction_rules: { loading_style: 'skeleton', error_feedback: 'toast', confirm_delete: true, animations: true },
+    responsive_rules:  { mobile_breakpoint: '768', tablet_breakpoint: '1024', mobile_first: true },
+    iconography:       { library: 'ant-design', style: 'outlined', base_size: '16' },
+  };
+}
+
+function buildUISpecCard(proj) {
+  const cfg = proj.ui_config;
+  const hasConfig = !!cfg;
+  const summary = hasConfig ? [
+    cfg.theme ? `主题：${cfg.theme==='light'?'浅色':'深色'}` : '',
+    cfg.color_system?.primary ? `主色：${cfg.color_system.primary}` : '',
+    cfg.typography?.font_family ? `字体：${cfg.typography.font_family==='system'?'系统默认':cfg.typography.font_family}` : '',
+  ].filter(Boolean).join('　·　') : '';
+
+  return `
+  <div class="rm-section-header" style="margin-top:0">
+    <div>
+      <div class="rm-section-title">UI 规范</div>
+      <div class="rm-section-sub">配置全局设计规范，导出时一并写入产品需求文档</div>
+    </div>
+    <button class="btn btn-primary" id="btn-edit-ui-spec">⚙️ ${hasConfig ? '编辑规范' : '开始配置'}</button>
+  </div>
+  ${hasConfig ? `
+  <div class="rm-add-module-form" style="margin-bottom:0">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px 20px">
+      ${[
+        ['🎨 主题风格', cfg.theme==='light'?'浅色模式':'深色模式'],
+        ['🎨 主色调', `<span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:${cfg.color_system?.primary||'#0969da'};vertical-align:-1px;margin-right:4px"></span>${cfg.color_system?.primary||'#0969da'}`],
+        ['🔤 字体', cfg.typography?.font_family==='system'?'系统默认':cfg.typography?.font_family||'系统默认'],
+        ['📐 间距基础', (cfg.spacing?.base_unit||'8')+'px'],
+        ['📏 最大宽度', (cfg.layout?.max_width||'1440')+'px'],
+        ['🔲 圆角', {none:'无圆角',sm:'小圆角(4px)',md:'中圆角(8px)',lg:'大圆角(14px)',full:'全圆角'}[cfg.component_style?.border_radius]||'中圆角'],
+        ['📋 表格分页', (cfg.table_standard?.page_size||'20')+'条/页'],
+        ['📝 表单标签', {top:'标签顶部',left:'标签左侧',float:'浮动标签'}[cfg.form_standard?.label_position]||'标签顶部'],
+        ['⏳ 加载样式', {skeleton:'骨架屏',spinner:'转圈',progress:'进度条'}[cfg.interaction_rules?.loading_style]||'骨架屏'],
+        ['🖼 图标库', {ant:'Ant Design','ant-design':'Ant Design',material:'Material',fontawesome:'Font Awesome',custom:'自定义'}[cfg.iconography?.library]||cfg.iconography?.library||'Ant Design'],
+      ].map(([label, val]) => `
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="font-size:.75rem;color:var(--muted)">${label}</div>
+          <div style="font-size:.88rem;font-weight:500">${val}</div>
+        </div>`).join('')}
+    </div>
+  </div>` : `
+  <div class="rm-empty" style="padding:40px 24px">
+    <span class="rm-empty-icon" style="font-size:2rem">🎨</span>
+    <div class="rm-empty-title">还没有配置 UI 规范</div>
+    <div class="rm-empty-desc">点击「开始配置」定义全局设计规范</div>
+  </div>`}`;
+}
+
+function buildUISpecEditor() {
+  const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+  if (!proj) return buildProjectList();
+  const cfg = proj.ui_config || getDefaultUIConfig();
+  const c = cfg.color_system || {};
+  const ty = cfg.typography  || {};
+  const sp = cfg.spacing      || {};
+  const ly = cfg.layout       || {};
+  const cs = cfg.component_style || {};
+  const ts = cfg.table_standard  || {};
+  const fs = cfg.form_standard   || {};
+  const ir = cfg.interaction_rules || {};
+  const rr = cfg.responsive_rules  || {};
+  const ic = cfg.iconography       || {};
+
+  const opt = (val, cur, label) => `<option value="${val}" ${cur===val?'selected':''}>${label}</option>`;
+  const rad = (name, val, cur, label) =>
+    `<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+      <input type="radio" name="${name}" value="${val}" ${cur===val?'checked':''}> ${label}
+     </label>`;
+  const chk = (id, cur, label) =>
+    `<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem">
+      <input type="checkbox" id="${id}" ${cur?'checked':''}> ${label}
+     </label>`;
+  const colorField = (id, val, label) =>
+    `<div style="display:flex;flex-direction:column;gap:4px">
+       <div style="font-size:.78rem;color:var(--muted)">${label}</div>
+       <div style="display:flex;align-items:center;gap:6px">
+         <input type="color" id="${id}" value="${val||'#000000'}" style="width:36px;height:28px;border:1px solid var(--border);border-radius:4px;cursor:pointer;padding:2px">
+         <input class="rm-input" id="${id}-hex" value="${val||''}" placeholder="#000000" style="width:90px;font-size:.82rem;font-family:monospace">
+       </div>
+     </div>`;
+
+  return `
+    <div class="rm-breadcrumb">
+      <button class="rm-breadcrumb-link" data-nav="project-list">需求管理</button>
+      <span class="rm-breadcrumb-sep">›</span>
+      <button class="rm-breadcrumb-link" data-nav="project-detail">${esc(proj.name)}</button>
+      <span class="rm-breadcrumb-sep">›</span>
+      <span>🎨 UI 规范</span>
+    </div>
+    <div class="rm-page-header" style="margin-bottom:24px">
+      <div>
+        <div class="rm-page-title">🎨 UI 规范</div>
+        <div style="font-size:.85rem;color:var(--muted);margin-top:4px">全局设计规范配置，导出时自动写入产品需求文档</div>
+      </div>
+    </div>
+
+    <div class="rm-add-module-form" style="margin-bottom:20px">
+
+      <!-- 主题风格 -->
+      <div class="rm-section-title" style="margin-bottom:14px;font-size:.92rem">🌓 主题风格（theme）</div>
+      <div class="rm-field-group" style="margin-bottom:24px">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;padding-top:4px">
+          ${rad('ui-theme','light',cfg.theme,'☀️ 浅色模式')}
+          ${rad('ui-theme','dark',cfg.theme,'🌙 深色模式')}
+          ${rad('ui-theme','system',cfg.theme,'💻 跟随系统')}
+        </div>
+      </div>
+
+      <!-- 色彩系统 -->
+      <div class="rm-section-title" style="margin-bottom:14px;font-size:.92rem">🎨 色彩系统（color_system）</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px">
+        ${colorField('clr-primary',   c.primary||'#0969da',   '主色 Primary')}
+        ${colorField('clr-secondary', c.secondary||'#8250df', '副色 Secondary')}
+        ${colorField('clr-success',   c.success||'#1a7f37',   '成功 Success')}
+        ${colorField('clr-warning',   c.warning||'#bf8700',   '警告 Warning')}
+        ${colorField('clr-error',     c.error||'#cf222e',     '错误 Error')}
+        ${colorField('clr-bg',        c.background||'#f6f8fa','背景 Background')}
+        ${colorField('clr-surface',   c.surface||'#ffffff',   '卡片 Surface')}
+        ${colorField('clr-text',      c.text||'#1f2328',      '文字 Text')}
+      </div>
+
+      <!-- 字体排版 -->
+      <div class="rm-section-title" style="margin-bottom:14px;font-size:.92rem">🔤 字体排版（typography）</div>
+      <div class="rm-form-row" style="margin-bottom:24px;flex-wrap:wrap;gap:16px">
+        <div class="rm-field-group">
+          <label class="rm-label">字体族</label>
+          <select class="rm-select" id="ty-family">
+            ${opt('system',ty.font_family,'系统默认（San Francisco / Segoe UI）')}
+            ${opt('PingFang SC',ty.font_family,'苹方 PingFang SC')}
+            ${opt('Inter',ty.font_family,'Inter')}
+            ${opt('Roboto',ty.font_family,'Roboto')}
+            ${opt('custom',ty.font_family,'自定义')}
+          </select>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">正文字号</label>
+          <select class="rm-select" id="ty-body">
+            ${['12','13','14','15','16'].map(v=>opt(v,ty.body_size||'14',v+'px')).join('')}
+          </select>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">标题比例</label>
+          <select class="rm-select" id="ty-scale">
+            ${[['1.2','紧凑 1.2x'],['1.25','标准 1.25x'],['1.333','宽松 1.333x'],['1.5','大气 1.5x']].map(([v,l])=>opt(v,ty.heading_scale||'1.25',l)).join('')}
+          </select>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">行高</label>
+          <select class="rm-select" id="ty-lh">
+            ${[['1.4','紧凑 1.4'],['1.5','标准 1.5'],['1.6','舒适 1.6'],['1.8','宽松 1.8']].map(([v,l])=>opt(v,ty.line_height||'1.6',l)).join('')}
+          </select>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">标题字重</label>
+          <select class="rm-select" id="ty-hw">
+            ${[['500','中等 500'],['600','半粗 600'],['700','加粗 700']].map(([v,l])=>opt(v,ty.heading_weight||'600',l)).join('')}
+          </select>
+        </div>
+      </div>
+
+      <!-- 间距规范 -->
+      <div class="rm-section-title" style="margin-bottom:14px;font-size:.92rem">📐 间距规范（spacing）</div>
+      <div class="rm-field-group" style="margin-bottom:24px">
+        <label class="rm-label">基础单位</label>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;padding-top:4px">
+          ${rad('ui-spacing','4',sp.base_unit,'4px（密集型）')}
+          ${rad('ui-spacing','8',sp.base_unit||'8','8px（标准，推荐）')}
+          ${rad('ui-spacing','10',sp.base_unit,'10px（宽松型）')}
+        </div>
+      </div>
+
+      <!-- 布局规范 -->
+      <div class="rm-section-title" style="margin-bottom:14px;font-size:.92rem">📏 布局规范（layout）</div>
+      <div class="rm-form-row" style="margin-bottom:24px;flex-wrap:wrap;gap:16px">
+        <div class="rm-field-group">
+          <label class="rm-label">最大内容宽度</label>
+          <select class="rm-select" id="ly-maxw">
+            ${[['960','960px（紧凑）'],['1200','1200px（标准）'],['1440','1440px（宽屏，推荐）'],['1600','1600px（超宽）'],['0','不限制']].map(([v,l])=>opt(v,ly.max_width||'1440',l)).join('')}
+          </select>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">侧边栏宽度</label>
+          <select class="rm-select" id="ly-sidebar">
+            ${[['200','200px'],['220','220px'],['240','240px（推荐）'],['260','260px'],['280','280px']].map(([v,l])=>opt(v,ly.sidebar_width||'240',l)).join('')}
+          </select>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">栅格列数</label>
+          <select class="rm-select" id="ly-grid">
+            ${[['12','12 列（推荐）'],['16','16 列'],['24','24 列']].map(([v,l])=>opt(v,ly.grid_columns||'12',l)).join('')}
+          </select>
+        </div>
+      </div>
+
+      <!-- 组件风格 -->
+      <div class="rm-section-title" style="margin-bottom:14px;font-size:.92rem">🔲 组件风格（component_style）</div>
+      <div class="rm-form-row" style="margin-bottom:24px;flex-wrap:wrap;gap:16px">
+        <div class="rm-field-group">
+          <label class="rm-label">圆角大小</label>
+          <select class="rm-select" id="cs-radius">
+            ${[['none','无圆角 0px'],['sm','小圆角 4px'],['md','中圆角 8px（推荐）'],['lg','大圆角 14px'],['full','完全圆角']].map(([v,l])=>opt(v,cs.border_radius||'md',l)).join('')}
+          </select>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">投影层级</label>
+          <select class="rm-select" id="cs-shadow">
+            ${[['none','无投影'],['sm','轻微投影（推荐）'],['md','中等投影'],['lg','强烈投影']].map(([v,l])=>opt(v,cs.shadow||'sm',l)).join('')}
+          </select>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">按钮风格</label>
+          <select class="rm-select" id="cs-btn">
+            ${[['rounded','圆角按钮（推荐）'],['square','直角按钮'],['pill','胶囊按钮']].map(([v,l])=>opt(v,cs.button_style||'rounded',l)).join('')}
+          </select>
+        </div>
+      </div>
+
+      <!-- 表格规范 -->
+      <div class="rm-section-title" style="margin-bottom:14px;font-size:.92rem">📋 表格规范（table_standard）</div>
+      <div class="rm-form-row" style="margin-bottom:16px;flex-wrap:wrap;gap:16px">
+        <div class="rm-field-group">
+          <label class="rm-label">默认每页条数</label>
+          <select class="rm-select" id="ts-pagesize">
+            ${[['10','10 条'],['20','20 条（推荐）'],['50','50 条'],['100','100 条']].map(([v,l])=>opt(v,ts.page_size||'20',l)).join('')}
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:24px;padding-top:2px">
+        ${chk('ts-alt',   ts.alternating_rows!==false, '斑马纹（交替行背景）')}
+        ${chk('ts-border',ts.show_borders!==false,      '显示表格边框')}
+        ${chk('ts-sticky',ts.sticky_header!==false,     '固定表头')}
+        ${chk('ts-sort',  ts.sortable!==false,          '列可排序')}
+      </div>
+
+      <!-- 表单规范 -->
+      <div class="rm-section-title" style="margin-bottom:14px;font-size:.92rem">📝 表单规范（form_standard）</div>
+      <div class="rm-form-row" style="margin-bottom:24px;flex-wrap:wrap;gap:20px">
+        <div class="rm-field-group">
+          <label class="rm-label">标签位置</label>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;padding-top:4px">
+            ${rad('ui-label-pos','top',fs.label_position||'top','顶部对齐')}
+            ${rad('ui-label-pos','left',fs.label_position,'左侧对齐')}
+            ${rad('ui-label-pos','float',fs.label_position,'浮动标签')}
+          </div>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">必填标识</label>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;padding-top:4px">
+            ${rad('ui-required','*',fs.required_indicator||'*','* 号标识')}
+            ${rad('ui-required','必填',fs.required_indicator,'"必填" 文字')}
+            ${rad('ui-required','dot',fs.required_indicator,'红点标识')}
+          </div>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">校验时机</label>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;padding-top:4px">
+            ${rad('ui-validation','blur',fs.validation_timing||'blur','失去焦点时')}
+            ${rad('ui-validation','submit',fs.validation_timing,'提交时')}
+            ${rad('ui-validation','realtime',fs.validation_timing,'实时校验')}
+          </div>
+        </div>
+      </div>
+
+      <!-- 交互规则 -->
+      <div class="rm-section-title" style="margin-bottom:14px;font-size:.92rem">⚡ 交互规则（interaction_rules）</div>
+      <div class="rm-form-row" style="margin-bottom:16px;flex-wrap:wrap;gap:20px">
+        <div class="rm-field-group">
+          <label class="rm-label">加载样式</label>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;padding-top:4px">
+            ${rad('ui-loading','skeleton',ir.loading_style||'skeleton','🦴 骨架屏')}
+            ${rad('ui-loading','spinner',ir.loading_style,'🔄 转圈')}
+            ${rad('ui-loading','progress',ir.loading_style,'📊 进度条')}
+          </div>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">错误反馈</label>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;padding-top:4px">
+            ${rad('ui-error-fb','toast',ir.error_feedback||'toast','Toast 提示')}
+            ${rad('ui-error-fb','inline',ir.error_feedback,'行内展示')}
+            ${rad('ui-error-fb','modal',ir.error_feedback,'弹窗提示')}
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:24px">
+        ${chk('ir-confirm',ir.confirm_delete!==false,'删除操作需二次确认')}
+        ${chk('ir-anim',   ir.animations!==false,    '启用过渡动画')}
+      </div>
+
+      <!-- 响应式规则 -->
+      <div class="rm-section-title" style="margin-bottom:14px;font-size:.92rem">📱 响应式规则（responsive_rules）</div>
+      <div class="rm-form-row" style="margin-bottom:16px;flex-wrap:wrap;gap:16px">
+        <div class="rm-field-group">
+          <label class="rm-label">移动端断点</label>
+          <select class="rm-select" id="rr-mobile">
+            ${[['640','640px'],['768','768px（推荐）'],['960','960px']].map(([v,l])=>opt(v,rr.mobile_breakpoint||'768',l)).join('')}
+          </select>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">平板断点</label>
+          <select class="rm-select" id="rr-tablet">
+            ${[['1024','1024px（推荐）'],['1280','1280px'],['1440','1440px']].map(([v,l])=>opt(v,rr.tablet_breakpoint||'1024',l)).join('')}
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:24px">
+        ${chk('rr-mf',rr.mobile_first!==false,'移动端优先（Mobile First）')}
+      </div>
+
+      <!-- 图标规范 -->
+      <div class="rm-section-title" style="margin-bottom:14px;font-size:.92rem">🖼 图标规范（iconography）</div>
+      <div class="rm-form-row" style="margin-bottom:16px;flex-wrap:wrap;gap:16px">
+        <div class="rm-field-group">
+          <label class="rm-label">图标库</label>
+          <select class="rm-select" id="ic-lib">
+            ${[['ant-design','Ant Design Icons（推荐）'],['material','Material Icons'],['fontawesome','Font Awesome'],['heroicons','Heroicons'],['custom','自定义']].map(([v,l])=>opt(v,ic.library||'ant-design',l)).join('')}
+          </select>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">图标风格</label>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;padding-top:4px">
+            ${rad('ui-icon-style','outlined',ic.style||'outlined','线性（Outlined）')}
+            ${rad('ui-icon-style','filled',ic.style,'填充（Filled）')}
+            ${rad('ui-icon-style','rounded',ic.style,'圆角（Rounded）')}
+            ${rad('ui-icon-style','two-tone',ic.style,'双色（Two-tone）')}
+          </div>
+        </div>
+        <div class="rm-field-group">
+          <label class="rm-label">基础尺寸</label>
+          <select class="rm-select" id="ic-size">
+            ${[['14','14px'],['16','16px（推荐）'],['18','18px'],['20','20px'],['24','24px']].map(([v,l])=>opt(v,ic.base_size||'16',l)).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div class="rm-form-actions" style="margin-top:8px">
+        <button class="btn btn-primary" id="btn-save-ui-spec">保存 UI 规范</button>
+      </div>
+    </div>`;
+}
+
 // ── Project Detail ────────────────────────────────────────────
 function buildProjectDetail() {
   const proj = reqProjects.find(p => p.id === rmCurrentProjId);
@@ -2790,17 +3146,25 @@ function buildProjectDetail() {
       ${proj.goals ? `<div style="font-size:.85rem;color:var(--text);margin-top:6px"><span style="color:var(--muted);font-size:.78rem">项目目标：</span>${esc(proj.goals)}</div>` : ''}
     </div>
 
-    <div class="rm-section-header" style="margin-top:8px">
+    <div class="rm-tabs" style="margin:16px 0 20px">
+      <button class="rm-tab-btn ${rmProjTab==='custom'?'active':''}" data-proj-tab="custom">📦 自定义模块</button>
+      <button class="rm-tab-btn ${rmProjTab==='basic'?'active':''}"  data-proj-tab="basic">🧩 基础模块</button>
+      <button class="rm-tab-btn ${rmProjTab==='ui-spec'?'active':''}" data-proj-tab="ui-spec">🎨 UI 规范</button>
+    </div>
+
+    ${rmProjTab === 'basic' ? `
+    <div class="rm-section-header" style="margin-top:0">
       <div>
         <div class="rm-section-title">基础模块</div>
         <div class="rm-section-sub">注册、登录、多语言、子账号与权限、国家地区等预置模块，使用标准化配置，不可新建或删除</div>
       </div>
     </div>
-    <div class="rm-module-list" style="margin-bottom:28px">
+    <div class="rm-module-list">
       ${basicRows}
-    </div>
+    </div>` : ''}
 
-    <div class="rm-section-header">
+    ${rmProjTab === 'custom' ? `
+    <div class="rm-section-header" style="margin-top:0">
       <div>
         <div class="rm-section-title">自定义模块</div>
         <div class="rm-section-sub">根据产品需要自由添加功能模块，如「工单管理」「报表中心」</div>
@@ -2834,7 +3198,9 @@ function buildProjectDetail() {
           <div class="rm-empty-title">还没有自定义模块</div>
           <div class="rm-empty-desc">点击「新建模块」添加第一个功能模块</div>
         </div>`}
-    </div>`;
+    </div>` : ''}
+
+    ${rmProjTab === 'ui-spec' ? buildUISpecCard(proj) : ''}`;
 }
 
 // ── Page tree helpers ─────────────────────────────────────────
@@ -3406,8 +3772,8 @@ function buildPageEditor() {
   const typeColors = { list:'#0969da', detail:'#8250df', form:'#1a7f37', dashboard:'#b35000', other:'#656d76' };
   const tc = typeColors[page.type] || typeColors.other;
   const tabs = [
-    { key:'flows',       label:'👣 用户流程' },
     { key:'schema',      label:'📐 页面结构' },
+    { key:'flows',       label:'👣 用户流程' },
     { key:'states',      label:'🔄 状态机' },
     { key:'constraints', label:'⚖️ 约束规则' },
   ];
@@ -3820,6 +4186,99 @@ function bindRMEvents() {
     });
   });
 
+  // ── Project-level tab switcher (basic / custom / ui-spec) ───
+  root.querySelectorAll('[data-proj-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      rmProjTab = btn.dataset.projTab;
+      renderRM();
+    });
+  });
+
+  // UI spec editor navigation
+  document.getElementById('btn-edit-ui-spec')?.addEventListener('click', () => {
+    showReqView('ui-spec-editor');
+  });
+
+  // Save UI spec
+  document.getElementById('btn-save-ui-spec')?.addEventListener('click', () => {
+    const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+    if (!proj) return;
+    // Color sync: pick hex input as canonical, fall back to color picker
+    const clr = (id) => {
+      const hex = document.getElementById(id+'-hex')?.value.trim();
+      return (hex && /^#[0-9a-fA-F]{3,8}$/.test(hex)) ? hex : (document.getElementById(id)?.value || '');
+    };
+    proj.ui_config = {
+      theme: document.querySelector('[name="ui-theme"]:checked')?.value || 'light',
+      color_system: {
+        primary: clr('clr-primary'), secondary: clr('clr-secondary'), success: clr('clr-success'),
+        warning: clr('clr-warning'), error: clr('clr-error'), background: clr('clr-bg'),
+        surface: clr('clr-surface'), text: clr('clr-text'),
+      },
+      typography: {
+        font_family:    document.getElementById('ty-family')?.value || 'system',
+        body_size:      document.getElementById('ty-body')?.value   || '14',
+        heading_scale:  document.getElementById('ty-scale')?.value  || '1.25',
+        line_height:    document.getElementById('ty-lh')?.value     || '1.6',
+        heading_weight: document.getElementById('ty-hw')?.value     || '600',
+      },
+      spacing: { base_unit: document.querySelector('[name="ui-spacing"]:checked')?.value || '8' },
+      layout: {
+        max_width:    document.getElementById('ly-maxw')?.value    || '1440',
+        sidebar_width:document.getElementById('ly-sidebar')?.value || '240',
+        grid_columns: document.getElementById('ly-grid')?.value    || '12',
+      },
+      component_style: {
+        border_radius: document.getElementById('cs-radius')?.value || 'md',
+        shadow:        document.getElementById('cs-shadow')?.value || 'sm',
+        button_style:  document.getElementById('cs-btn')?.value    || 'rounded',
+      },
+      table_standard: {
+        page_size:        document.getElementById('ts-pagesize')?.value || '20',
+        alternating_rows: !!document.getElementById('ts-alt')?.checked,
+        show_borders:     !!document.getElementById('ts-border')?.checked,
+        sticky_header:    !!document.getElementById('ts-sticky')?.checked,
+        sortable:         !!document.getElementById('ts-sort')?.checked,
+      },
+      form_standard: {
+        label_position:   document.querySelector('[name="ui-label-pos"]:checked')?.value  || 'top',
+        required_indicator:document.querySelector('[name="ui-required"]:checked')?.value  || '*',
+        validation_timing: document.querySelector('[name="ui-validation"]:checked')?.value || 'blur',
+      },
+      interaction_rules: {
+        loading_style:  document.querySelector('[name="ui-loading"]:checked')?.value   || 'skeleton',
+        error_feedback: document.querySelector('[name="ui-error-fb"]:checked')?.value  || 'toast',
+        confirm_delete: !!document.getElementById('ir-confirm')?.checked,
+        animations:     !!document.getElementById('ir-anim')?.checked,
+      },
+      responsive_rules: {
+        mobile_breakpoint:  document.getElementById('rr-mobile')?.value  || '768',
+        tablet_breakpoint:  document.getElementById('rr-tablet')?.value  || '1024',
+        mobile_first:       !!document.getElementById('rr-mf')?.checked,
+      },
+      iconography: {
+        library:   document.getElementById('ic-lib')?.value  || 'ant-design',
+        style:     document.querySelector('[name="ui-icon-style"]:checked')?.value || 'outlined',
+        base_size: document.getElementById('ic-size')?.value || '16',
+      },
+    };
+    saveProjects([...reqProjects]);
+    toast('UI 规范已保存', 'success');
+    rmProjTab = 'ui-spec';
+    showReqView('project-detail');
+  });
+
+  // Color picker ↔ hex input sync
+  root.querySelectorAll('input[type="color"]').forEach(picker => {
+    const hexId = picker.id + '-hex';
+    const hexInput = document.getElementById(hexId);
+    if (!hexInput) return;
+    picker.addEventListener('input', () => { hexInput.value = picker.value; });
+    hexInput.addEventListener('input', () => {
+      if (/^#[0-9a-fA-F]{6}$/.test(hexInput.value)) picker.value = hexInput.value;
+    });
+  });
+
   // Show/hide inline add-module form
   document.getElementById('btn-show-add-mod')?.addEventListener('click', () => {
     document.getElementById('add-mod-form').classList.remove('hidden');
@@ -3937,6 +4396,17 @@ function bindRMEvents() {
       const proj = reqProjects.find(p => p.id === rmCurrentProjId);
       const rel  = (proj?.releases || []).find(r => r.id === btn.dataset.exportChange);
       if (proj && rel) openExportChangeModal(proj, rel);
+    });
+  });
+
+  root.querySelectorAll('[data-export-snap-md]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const proj = reqProjects.find(p => p.id === rmCurrentProjId);
+      const rel  = (proj?.releases || []).find(r => r.id === btn.dataset.exportSnapMd);
+      if (!proj || !rel) return;
+      // Build a temporary project from the snapshot modules
+      const snapProj = { ...proj, modules: rel.snapshot?.modules || [] };
+      openExportModal(snapProj);
     });
   });
 
@@ -5080,9 +5550,154 @@ function generateMarkdown(proj) {
     renderTree(null, 0);
   });
 
+  // UI spec section
+  if (proj.ui_config) {
+    md += renderUISpecMarkdown(proj.ui_config);
+  }
+
   md += `*本文档由 AxisQ 需求管理工具生成*\n`;
   md += `*请根据以上产品行为描述，自主设计 web 应用：包括后端的数据库表结构、API 接口、服务端业务逻辑、前端的页面搭建*\n`;
   return md;
+}
+
+function renderUISpecMarkdown(cfg) {
+  if (!cfg) return '';
+  const c  = cfg.color_system      || {};
+  const ty = cfg.typography         || {};
+  const sp = cfg.spacing            || {};
+  const ly = cfg.layout             || {};
+  const cs = cfg.component_style    || {};
+  const ts = cfg.table_standard     || {};
+  const fs = cfg.form_standard      || {};
+  const ir = cfg.interaction_rules  || {};
+  const rr = cfg.responsive_rules   || {};
+  const ic = cfg.iconography        || {};
+
+  const themeMap = { light:'浅色模式', dark:'深色模式', system:'跟随系统' };
+  const radiusMap = { none:'无圆角 0px', sm:'小圆角 4px', md:'中圆角 8px', lg:'大圆角 14px', full:'全圆角' };
+  const shadowMap = { none:'无投影', sm:'轻微投影', md:'中等投影', lg:'强烈投影' };
+  const btnMap    = { rounded:'圆角按钮', square:'直角按钮', pill:'胶囊按钮' };
+  const labelMap  = { top:'顶部对齐', left:'左侧对齐', float:'浮动标签' };
+  const reqMap    = { '*':'* 号标识', '必填':'"必填" 文字', dot:'红点标识' };
+  const valMap    = { blur:'失去焦点', submit:'提交时', realtime:'实时校验' };
+  const loadMap   = { skeleton:'骨架屏', spinner:'转圈', progress:'进度条' };
+  const errMap    = { toast:'Toast 提示', inline:'行内展示', modal:'弹窗提示' };
+  const iconLibMap = { 'ant-design':'Ant Design Icons', material:'Material Icons', fontawesome:'Font Awesome', heroicons:'Heroicons', custom:'自定义' };
+  const iconStyleMap = { outlined:'线性 Outlined', filled:'填充 Filled', rounded:'圆角 Rounded', 'two-tone':'双色 Two-tone' };
+  const fontMap   = { system:'系统默认', 'PingFang SC':'苹方 PingFang SC', Inter:'Inter', Roboto:'Roboto', custom:'自定义' };
+
+  let md = `## UI 规范\n\n`;
+  md += `**主题：** ${themeMap[cfg.theme] || cfg.theme || '浅色模式'}\n\n`;
+  md += `### 色彩系统\n\n`;
+  md += `| 用途 | 色值 |\n|------|------|\n`;
+  if (c.primary)    md += `| 主色 Primary    | \`${c.primary}\`    |\n`;
+  if (c.secondary)  md += `| 副色 Secondary  | \`${c.secondary}\`  |\n`;
+  if (c.success)    md += `| 成功 Success    | \`${c.success}\`    |\n`;
+  if (c.warning)    md += `| 警告 Warning    | \`${c.warning}\`    |\n`;
+  if (c.error)      md += `| 错误 Error      | \`${c.error}\`      |\n`;
+  if (c.background) md += `| 背景 Background | \`${c.background}\` |\n`;
+  if (c.surface)    md += `| 卡片 Surface    | \`${c.surface}\`    |\n`;
+  if (c.text)       md += `| 正文 Text       | \`${c.text}\`       |\n`;
+  md += `\n`;
+  md += `### 字体排版\n\n`;
+  md += `**字体族：** ${fontMap[ty.font_family] || ty.font_family || '系统默认'}　`;
+  md += `**正文字号：** ${ty.body_size || '14'}px　`;
+  md += `**行高：** ${ty.line_height || '1.6'}　`;
+  md += `**标题比例：** ${ty.heading_scale || '1.25'}x　`;
+  md += `**标题字重：** ${ty.heading_weight || '600'}\n\n`;
+  md += `### 间距 & 布局\n\n`;
+  md += `**间距基础单位：** ${sp.base_unit || '8'}px　`;
+  md += `**最大内容宽度：** ${ly.max_width === '0' ? '不限制' : (ly.max_width || '1440')+'px'}　`;
+  md += `**侧边栏宽度：** ${ly.sidebar_width || '240'}px　`;
+  md += `**栅格列数：** ${ly.grid_columns || '12'} 列\n\n`;
+  md += `### 组件风格\n\n`;
+  md += `**圆角：** ${radiusMap[cs.border_radius] || cs.border_radius || '中圆角 8px'}　`;
+  md += `**投影：** ${shadowMap[cs.shadow] || cs.shadow || '轻微投影'}　`;
+  md += `**按钮：** ${btnMap[cs.button_style] || cs.button_style || '圆角按钮'}\n\n`;
+  md += `### 表格规范\n\n`;
+  md += `**默认分页：** ${ts.page_size || '20'} 条/页　`;
+  md += `**斑马纹：** ${ts.alternating_rows !== false ? '是' : '否'}　`;
+  md += `**边框：** ${ts.show_borders !== false ? '显示' : '隐藏'}　`;
+  md += `**固定表头：** ${ts.sticky_header !== false ? '是' : '否'}　`;
+  md += `**可排序列：** ${ts.sortable !== false ? '是' : '否'}\n\n`;
+  md += `### 表单规范\n\n`;
+  md += `**标签位置：** ${labelMap[fs.label_position] || fs.label_position || '顶部对齐'}　`;
+  md += `**必填标识：** ${reqMap[fs.required_indicator] || fs.required_indicator || '* 号标识'}　`;
+  md += `**校验时机：** ${valMap[fs.validation_timing] || fs.validation_timing || '失去焦点'}\n\n`;
+  md += `### 交互规则\n\n`;
+  md += `**加载样式：** ${loadMap[ir.loading_style] || ir.loading_style || '骨架屏'}　`;
+  md += `**错误反馈：** ${errMap[ir.error_feedback] || ir.error_feedback || 'Toast 提示'}　`;
+  md += `**删除确认：** ${ir.confirm_delete !== false ? '是' : '否'}　`;
+  md += `**过渡动画：** ${ir.animations !== false ? '启用' : '禁用'}\n\n`;
+  md += `### 响应式规则\n\n`;
+  md += `**移动端断点：** ${rr.mobile_breakpoint || '768'}px　`;
+  md += `**平板断点：** ${rr.tablet_breakpoint || '1024'}px　`;
+  md += `**移动端优先：** ${rr.mobile_first !== false ? '是' : '否'}\n\n`;
+  md += `### 图标规范\n\n`;
+  md += `**图标库：** ${iconLibMap[ic.library] || ic.library || 'Ant Design Icons'}　`;
+  md += `**风格：** ${iconStyleMap[ic.style] || ic.style || '线性 Outlined'}　`;
+  md += `**基础尺寸：** ${ic.base_size || '16'}px\n\n---\n\n`;
+  return md;
+}
+
+// ── Lightweight Markdown → HTML renderer (for preview) ────────
+function md2html(md) {
+  const esc2 = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const lines = md.split('\n');
+  let html = '';
+  let inTable = false;
+  let tableHead = true;
+  let inList = false;
+  const closeList = () => { if (inList) { html += '</ul>'; inList = false; } };
+  const closeTable = () => { if (inTable) { html += '</tbody></table>'; inTable = false; tableHead = true; } };
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    const raw = line.trim();
+
+    // Horizontal rule
+    if (/^-{3,}$/.test(raw)) { closeList(); closeTable(); html += '<hr style="border:none;border-top:1px solid #d0d7de;margin:16px 0">'; continue; }
+
+    // Table row
+    if (/^\|.+\|$/.test(raw)) {
+      const cells = raw.replace(/^\||\|$/g,'').split('|');
+      if (!inTable) { html += '<table style="border-collapse:collapse;width:100%;font-size:.85rem;margin:8px 0"><thead>'; inTable = true; tableHead = true; }
+      if (/^[\s|:-]+$/.test(raw.replace(/[^|:-]/g,''))) { html += '</thead><tbody>'; tableHead = false; continue; }
+      const tag = tableHead ? 'th' : 'td';
+      const style = tableHead
+        ? 'style="padding:6px 10px;border:1px solid #d0d7de;background:#f6f8fa;font-weight:600;text-align:left"'
+        : 'style="padding:5px 10px;border:1px solid #d0d7de"';
+      html += `<tr>${cells.map(c => `<${tag} ${style}>${inlineFormat(c.trim())}</${tag}>`).join('')}</tr>`;
+      continue;
+    }
+    closeTable();
+
+    // Headings
+    const hm = raw.match(/^(#{1,4})\s+(.+)/);
+    if (hm) { closeList(); const lvl = hm[1].length; const sizes = ['1.4rem','1.15rem','1rem','.9rem']; html += `<h${lvl} style="margin:${lvl<3?'20px':'14px'} 0 8px;font-size:${sizes[lvl-1]};font-weight:700;color:#1f2328">${inlineFormat(hm[2])}</h${lvl}>`; continue; }
+
+    // List item
+    if (/^[-*]\s/.test(raw)) {
+      if (!inList) { html += '<ul style="margin:6px 0 6px 20px;padding:0;line-height:1.7">'; inList = true; }
+      html += `<li>${inlineFormat(raw.slice(2))}</li>`; continue;
+    }
+    closeList();
+
+    // Empty line
+    if (!raw) { html += '<div style="height:8px"></div>'; continue; }
+
+    // Paragraph
+    html += `<p style="margin:4px 0;line-height:1.7">${inlineFormat(raw)}</p>`;
+  }
+  closeList(); closeTable();
+  return html;
+}
+function inlineFormat(s) {
+  return s
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/`(.+?)`/g,'<code style="background:#f0f2f5;padding:1px 4px;border-radius:3px;font-size:.9em">$1</code>');
 }
 
 function openExportModal(proj) {
@@ -5092,17 +5707,36 @@ function openExportModal(proj) {
       <div class="modal-title">📤 导出需求 Markdown</div>
       <button class="modal-close" data-modal-close>✕</button>
     </div>
-    <div class="modal-body">
-      <div style="font-size:.84rem;color:var(--muted);line-height:1.6">
-        复制下方内容，粘贴给 AI——AI 将根据产品行为描述自主设计数据库表结构、API 接口与业务逻辑。
+    <div class="modal-body" style="padding-top:12px">
+      <div class="rm-tabs" style="margin-bottom:14px">
+        <button class="rm-tab-btn active" id="export-tab-raw">📝 原始文本</button>
+        <button class="rm-tab-btn" id="export-tab-preview">👁 预览效果</button>
       </div>
-      <pre class="rm-export-pre">${esc(md)}</pre>
+      <div id="export-raw-panel">
+        <div style="font-size:.82rem;color:var(--muted);margin-bottom:8px;line-height:1.5">复制下方内容，粘贴给 AI——AI 将根据产品行为描述自主设计数据库表结构、API 接口与业务逻辑。</div>
+        <pre class="rm-export-pre">${esc(md)}</pre>
+      </div>
+      <div id="export-preview-panel" style="display:none;max-height:60vh;overflow-y:auto;padding:4px 0">
+        ${md2html(md)}
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" data-modal-close>关闭</button>
       <button class="btn btn-primary" id="btn-copy-md">📋 复制到剪贴板</button>
     </div>`, true);
 
+  document.getElementById('export-tab-raw').addEventListener('click', function() {
+    this.classList.add('active');
+    document.getElementById('export-tab-preview').classList.remove('active');
+    document.getElementById('export-raw-panel').style.display = '';
+    document.getElementById('export-preview-panel').style.display = 'none';
+  });
+  document.getElementById('export-tab-preview').addEventListener('click', function() {
+    this.classList.add('active');
+    document.getElementById('export-tab-raw').classList.remove('active');
+    document.getElementById('export-raw-panel').style.display = 'none';
+    document.getElementById('export-preview-panel').style.display = '';
+  });
   document.getElementById('btn-copy-md').addEventListener('click', () => {
     navigator.clipboard.writeText(md).then(() => {
       document.getElementById('btn-copy-md').textContent = '✅ 已复制！';
@@ -5125,6 +5759,7 @@ function toast(msg, type = 'success') {
 
 // ── Init ──────────────────────────────────────────────────────
 reqProjects = loadProjects();
+navigateTo('req');
 
 // Sidebar nav items
 document.querySelectorAll('.nav-item').forEach(btn => {
